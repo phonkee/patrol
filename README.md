@@ -1,7 +1,7 @@
 # patrol
 
 
-## Warning: this project is in initial state. It's nowhere near to complete!!
+#### Warning: this project is in initial state. It's nowhere near to complete!!
 
 Patrol is implementation of sentry server in go language. It uses sentry protocol so you can use raven clients (currently protocol version 4 is supported). Frontend is written in angularjs so backend server serves only rest api.
 All static data will be compiled into binary so there will be no need to copy resources etc..
