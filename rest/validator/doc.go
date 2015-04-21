@@ -1,0 +1,4 @@
+/*
+validator.NewResult
+*/
+package validator
