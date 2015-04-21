@@ -31,8 +31,11 @@ will be ne dependencies.
 All configuration is provided with command line arguments.
 
 
+Development of frontend is located at https://github.com/phonkee/patrol-frontend/
+
+
 Authors:
 phonkee
 
 Contributions:
-Pull requests or ideas are welcome
+Any ideas are welcome
