@@ -3,6 +3,7 @@ package events
 import (
 	"net/http"
 
+	"github.com/golang/glog"
 	"github.com/phonkee/patrol/context"
 	"github.com/phonkee/patrol/core"
 	"github.com/phonkee/patrol/rest/response"
@@ -37,7 +38,8 @@ func (p *EventListView) Before(w http.ResponseWriter, r *http.Request) (err erro
 }
 
 func (p *EventListView) GET(w http.ResponseWriter, r *http.Request) {
-	response.New(http.StatusOK).Write(w, r)
+	glog.Info("this is eventgroup %+v\n", p.EventGroup)
 
+	response.New(http.StatusOK).Write(w, r)
 	return
 }
