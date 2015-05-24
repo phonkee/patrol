@@ -249,11 +249,6 @@ func (e *StacktraceInterfaceV4) Hash() string {
 func (e *StacktraceInterfaceV4) String() string   { return "ehm" }
 func (e *StacktraceInterfaceV4) Template() string { return "ehm" }
 
-// func (e *StacktraceInterfaceV4) UnmarshalJSON(body []byte) error {
-// 	fmt.Printf("Really?????????????? %s", string(body))
-// 	return nil
-// }
-
 type StacktraceFrameV4 struct {
 	Filename    string   `json:"filename"`
 	Function    string   `json:"function"`

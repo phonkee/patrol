@@ -27,3 +27,8 @@ type ProjectMemberListItem struct {
 	UserID types.ForeignKey           `json:"user_id"`
 	User   *auth.UserDetailSerializer `json:"user"`
 }
+
+type ProjectMemberCreate struct {
+	Type   models.MemberType `json:"type"`
+	UserID types.PrimaryKey  `json:"user_id"`
+}

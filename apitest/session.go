@@ -44,13 +44,14 @@ import (
 	Returns new Session
 	if context is not given, patrol.Context is used
 */
-func NewSession(context ...*context.Context) *Session {
+func NewSession(ctx ...*context.Context) *Session {
 	c := patrol.Context
-	if len(context) > 0 {
-		c = context[0]
+	if len(ctx) > 0 {
+		c = ctx[0]
 	}
 	return &Session{
 		context: c,
+		user:    models.NewUser(),
 	}
 }
 

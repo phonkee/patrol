@@ -67,7 +67,8 @@ func (p *ProjectMemeberListAPIView) GET(w http.ResponseWriter, r *http.Request) 
 		Iterate over team members, load user info and add
 	*/
 
-	var result = make([]*ProjectMemberListItem, len(memberlist))
+	resultsize := len(memberlist)
+	var result = make([]*ProjectMemberListItem, resultsize)
 
 	for i, item := range memberlist {
 		member := &ProjectMemberListItem{
@@ -85,7 +86,7 @@ func (p *ProjectMemeberListAPIView) GET(w http.ResponseWriter, r *http.Request) 
 		result[i].User.FromUser(user)
 	}
 
-	response.New(http.StatusOK).Result(result).ResultSize(len(result)).Write(w, r)
+	response.New(http.StatusOK).Result(result).ResultSize(resultsize).Write(w, r)
 	return
 }
 
@@ -96,6 +97,12 @@ func (p *ProjectMemeberListAPIView) OPTIONS(w http.ResponseWriter, r *http.Reque
 	md := metadata.New("List of project members")
 	md.ActionRetrieve().From(&ProjectMemberListItem{})
 
+	// admin has permissions to add new member
+	if p.memtype == models.MEMBER_TYPE_ADMIN {
+		create := md.ActionCreate().From(&ProjectMemberCreate{})
+		create.Field("type").Choices.Add(models.MEMBER_TYPE_MEMBER, "member").Add(models.MEMBER_TYPE_ADMIN, "admin")
+	}
+
 	response.New(http.StatusOK).Metadata(md).Write(w, r)
 	return
 }
@@ -105,4 +112,11 @@ Add member to team
 */
 func (p *ProjectMemeberListAPIView) POST(w http.ResponseWriter, r *http.Request) {
 
+	// only admin (and superuser) can add new members
+	if p.memtype != models.MEMBER_TYPE_ADMIN {
+		response.New(http.StatusForbidden).Write(w, r)
+		return
+	}
+
+	response.New(http.StatusCreated).Write(w, r)
 }
