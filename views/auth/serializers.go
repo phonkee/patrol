@@ -24,6 +24,17 @@ type UserDetailSerializer struct {
 	LastLogin   time.Time        `db:"last_login" json:"last_login"`
 }
 
+func (u *UserDetailSerializer) FromUser(user *models.User) {
+	u.ID = user.ID
+	u.Username = user.Username
+	u.Email = user.Email
+	u.Name = user.Name
+	u.IsActive = user.IsActive
+	u.IsSuperuser = user.IsSuperuser
+	u.DateAdded = user.DateAdded
+	u.LastLogin = user.LastLogin
+}
+
 type UserUpdateSerializer struct {
 	Email string `db:"email" json:"email" validator:"email"`
 	Name  string `db:"name" json:"name"`

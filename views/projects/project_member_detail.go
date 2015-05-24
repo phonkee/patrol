@@ -7,7 +7,6 @@ import (
 	"github.com/phonkee/patrol/core"
 	"github.com/phonkee/patrol/models"
 	"github.com/phonkee/patrol/rest/response"
-	"github.com/phonkee/patrol/views"
 	"github.com/phonkee/patrol/views/mixins"
 )
 
@@ -44,18 +43,27 @@ func (p *ProjectMemeberDetailAPIView) Before(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	tmm := models.NewTeamMemberManager(p.context)
-
-	if p.memtype, err = tmm.MemberTypeByProject(p.project, p.user); err != nil {
-		response.New(http.StatusForbidden).Write(w, r)
-		return views.ErrUnauthorized
+	// check if user is member of project
+	if p.memtype, err = p.GetMemberType(p.project, p.user, w, r); err != nil {
+		return
 	}
 
 	return
 }
 
 /*
-Retrieve list of user
+	Delete member from team
+*/
+func (p *ProjectMemeberDetailAPIView) DELETE(w http.ResponseWriter, r *http.Request) {
+	// only admin can delete member
+	if p.memtype != models.MEMBER_TYPE_ADMIN {
+		response.New(http.StatusForbidden).Write(w, r)
+		return
+	}
+}
+
+/*
+	Retrieve list of user
 */
 func (p *ProjectMemeberDetailAPIView) GET(w http.ResponseWriter, r *http.Request) {
 	response.New(http.StatusOK).Write(w, r)
@@ -66,12 +74,5 @@ func (p *ProjectMemeberDetailAPIView) GET(w http.ResponseWriter, r *http.Request
 	Returns metadata
 */
 func (p *ProjectMemeberDetailAPIView) OPTIONS(w http.ResponseWriter, r *http.Request) {
-
-}
-
-/*
-Add member to team
-*/
-func (p *ProjectMemeberDetailAPIView) POST(w http.ResponseWriter, r *http.Request) {
 
 }

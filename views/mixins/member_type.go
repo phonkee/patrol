@@ -5,6 +5,8 @@ import (
 
 	"github.com/phonkee/patrol/context"
 	"github.com/phonkee/patrol/models"
+	"github.com/phonkee/patrol/rest/response"
+	"github.com/phonkee/patrol/views"
 )
 
 /*
@@ -34,6 +36,24 @@ func (b *ProjectMemberTypeMixin) MemberType(context *context.Context, r *http.Re
 
 	// get member type
 	mt, err = teamm.MemberTypeByProject(project, user)
+
+	return
+}
+
+/*
+	Returns member type
+*/
+func (p *ProjectMemberTypeMixin) GetMemberType(project *models.Project, user *models.User, w http.ResponseWriter, r *http.Request) (mt models.MemberType, err error) {
+	var ctx *context.Context
+	if ctx, err = context.Get(r); err != nil {
+		response.New(http.StatusInternalServerError).Write(w, r)
+		return mt, views.ErrInternalServerError
+	}
+	tmm := models.NewTeamMemberManager(ctx)
+	if mt, err = tmm.MemberTypeByProject(project, user); err != nil {
+		response.New(http.StatusForbidden).Write(w, r)
+		return mt, views.ErrForbidden
+	}
 
 	return
 }

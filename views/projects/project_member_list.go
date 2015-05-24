@@ -6,8 +6,9 @@ import (
 	"github.com/phonkee/patrol/context"
 	"github.com/phonkee/patrol/core"
 	"github.com/phonkee/patrol/models"
+	"github.com/phonkee/patrol/rest/metadata"
 	"github.com/phonkee/patrol/rest/response"
-	"github.com/phonkee/patrol/views"
+	"github.com/phonkee/patrol/views/auth"
 	"github.com/phonkee/patrol/views/mixins"
 )
 
@@ -44,11 +45,8 @@ func (p *ProjectMemeberListAPIView) Before(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	tmm := models.NewTeamMemberManager(p.context)
-
-	if p.memtype, err = tmm.MemberTypeByProject(p.project, p.user); err != nil {
-		response.New(http.StatusForbidden).Write(w, r)
-		return views.ErrUnauthorized
+	if p.memtype, err = p.GetMemberType(p.project, p.user, w, r); err != nil {
+		return
 	}
 
 	return
@@ -58,7 +56,36 @@ func (p *ProjectMemeberListAPIView) Before(w http.ResponseWriter, r *http.Reques
 Retrieve list of user
 */
 func (p *ProjectMemeberListAPIView) GET(w http.ResponseWriter, r *http.Request) {
-	response.New(http.StatusOK).Write(w, r)
+	tmm := models.NewTeamMemberManager(p.context)
+	memberlist := models.NewTeamMemberList()
+	if err := tmm.Filter(&memberlist, tmm.QueryFilterProject(p.project)); err != nil {
+		response.New(http.StatusInternalServerError).Write(w, r)
+		return
+	}
+
+	/*
+		Iterate over team members, load user info and add
+	*/
+
+	var result = make([]*ProjectMemberListItem, len(memberlist))
+
+	for i, item := range memberlist {
+		member := &ProjectMemberListItem{
+			ID:     item.ID,
+			Type:   item.Type,
+			UserID: item.UserID,
+			User:   &auth.UserDetailSerializer{},
+		}
+		result[i] = member
+
+		user := models.NewUser()
+		if err := user.Manager(p.context).GetByID(user, item.UserID); err != nil {
+			continue
+		}
+		result[i].User.FromUser(user)
+	}
+
+	response.New(http.StatusOK).Result(result).ResultSize(len(result)).Write(w, r)
 	return
 }
 
@@ -66,7 +93,11 @@ func (p *ProjectMemeberListAPIView) GET(w http.ResponseWriter, r *http.Request) 
 	Returns metadata
 */
 func (p *ProjectMemeberListAPIView) OPTIONS(w http.ResponseWriter, r *http.Request) {
+	md := metadata.New("List of project members")
+	md.ActionRetrieve().From(&ProjectMemberListItem{})
 
+	response.New(http.StatusOK).Metadata(md).Write(w, r)
+	return
 }
 
 /*

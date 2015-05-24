@@ -91,6 +91,10 @@ func NewTeamMember(funcs ...func(*TeamMember)) (tm *TeamMember) {
 	return
 }
 
+func NewTeamMemberList() []*TeamMember {
+	return []*TeamMember{}
+}
+
 // Returns new TeamMember with default values
 func (t *TeamMemberManager) NewTeamMember(funcs ...func(*TeamMember)) (tm *TeamMember) {
 	return NewTeamMember(funcs...)
@@ -98,7 +102,7 @@ func (t *TeamMemberManager) NewTeamMember(funcs ...func(*TeamMember)) (tm *TeamM
 
 // return blank list of TeamMemgers for filter
 func (t *TeamMemberManager) NewTeamMemberList() []*TeamMember {
-	return []*TeamMember{}
+	return NewTeamMemberList()
 }
 
 // Filter team memebers from database with paging support
@@ -230,5 +234,12 @@ func (t *TeamMemberManager) QueryFilterTeamUser(team *Team, user *User) utils.Qu
 
 	return func(builder squirrel.SelectBuilder) squirrel.SelectBuilder {
 		return builder.Where("team_id = ? AND user_id = ?", team.ID, user.ID)
+	}
+}
+
+func (t *TeamMemberManager) QueryFilterProject(project *Project) utils.QueryFunc {
+	handleNilPointer(project)
+	return func(builder squirrel.SelectBuilder) squirrel.SelectBuilder {
+		return builder.Where("team_id = ?", project.TeamID)
 	}
 }
