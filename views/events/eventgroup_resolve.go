@@ -1,4 +1,4 @@
-package projects
+package events
 
 import (
 	"net/http"
@@ -14,7 +14,7 @@ import (
 Mark eventgroup as resolved
 send notification for frontend
 */
-type ProjectDetailEventGroupResolveAPIView struct {
+type EventGroupResolveAPIView struct {
 	core.JSONView
 	context *context.Context
 	user    *models.User
@@ -27,7 +27,7 @@ type ProjectDetailEventGroupResolveAPIView struct {
 /*
 Before method retrieves eventgroup, project from datastore.
 */
-func (p *ProjectDetailEventGroupResolveAPIView) Before(w http.ResponseWriter, r *http.Request) (err error) {
+func (p *EventGroupResolveAPIView) Before(w http.ResponseWriter, r *http.Request) (err error) {
 	p.context = p.Context(r)
 
 	p.user = models.NewUser()
@@ -52,7 +52,7 @@ func (p *ProjectDetailEventGroupResolveAPIView) Before(w http.ResponseWriter, r 
 /*
 	Marks eventgroup as resolved
 */
-func (p *ProjectDetailEventGroupResolveAPIView) POST(w http.ResponseWriter, r *http.Request) {
+func (p *EventGroupResolveAPIView) POST(w http.ResponseWriter, r *http.Request) {
 	egm := models.NewEventGroupManager(p.context)
 	if err := egm.Resolve(p.EventGroup, p.user); err != nil {
 		response.New(http.StatusNotAcceptable).Write(w, r)

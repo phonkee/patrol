@@ -5,7 +5,7 @@ import (
 
 	"github.com/phonkee/patrol/context"
 	"github.com/phonkee/patrol/parser"
-
+	"github.com/phonkee/patrol/rest/paginator"
 	"github.com/phonkee/patrol/types"
 	"github.com/phonkee/patrol/utils"
 )
@@ -126,7 +126,7 @@ func (e *EventManager) Filter(target interface{}, qfs ...utils.QueryFunc) error 
 }
 
 // Filter results with paging
-func (e *EventManager) FilterPaged(target interface{}, paging *utils.Paging, qfs ...utils.QueryFunc) (err error) {
+func (e *EventManager) FilterPaged(target interface{}, paging *paginator.Paginator, qfs ...utils.QueryFunc) (err error) {
 	if err = DBFilterCount(e.context, EVENTS_EVENT_DB_TABLE, paging, qfs...); err != nil {
 		return
 	}

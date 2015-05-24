@@ -1,4 +1,4 @@
-package utils
+package ordering
 
 import (
 	"fmt"
@@ -11,7 +11,7 @@ import (
 
 func TestOrdering(t *testing.T) {
 	Convey("test ordering", t, func() {
-		o := NewOrdering("order", "id", "username")
+		o := New("order", "id", "username")
 		o.Order("id")
 		So(o.OrderingOrder, ShouldEqual, "id ASC")
 		So(len(o.Allowed), ShouldEqual, 2)

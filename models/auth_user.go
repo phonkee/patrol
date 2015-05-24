@@ -10,6 +10,7 @@ import (
 	"github.com/Pallinder/go-randomdata"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/phonkee/patrol/context"
+	"github.com/phonkee/patrol/rest/paginator"
 	"github.com/phonkee/patrol/rest/validator"
 	"github.com/phonkee/patrol/settings"
 	"github.com/phonkee/patrol/types"
@@ -205,7 +206,7 @@ func (u *UserManager) Filter(target interface{}, qfs ...utils.QueryFunc) error {
 /* Filters projects from database
 qfs is list of utils.QueryFuncs - that are functions that alter query builder
 */
-func (u *UserManager) FilterPaged(target interface{}, paging *utils.Paging, qfs ...utils.QueryFunc) (err error) {
+func (u *UserManager) FilterPaged(target interface{}, paging *paginator.Paginator, qfs ...utils.QueryFunc) (err error) {
 	if err = DBFilterCount(u.context, AUTH_USER_DB_TABLE, paging, qfs...); err != nil {
 		return
 	}

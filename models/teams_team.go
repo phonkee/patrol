@@ -10,6 +10,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/lann/squirrel"
+	"github.com/phonkee/patrol/rest/paginator"
 	"github.com/phonkee/patrol/rest/validator"
 	"github.com/phonkee/patrol/types"
 	"github.com/phonkee/patrol/utils"
@@ -144,7 +145,7 @@ func (t *TeamManager) NewTeamList() []*Team {
 	return []*Team{}
 }
 
-func (t *TeamManager) FilterPaged(target interface{}, paging *utils.Paging, qfs ...utils.QueryFunc) (err error) {
+func (t *TeamManager) FilterPaged(target interface{}, paging *paginator.Paginator, qfs ...utils.QueryFunc) (err error) {
 	if err = DBFilterCount(t.context, TEAMS_TEAM_DB_TABLE, paging, qfs...); err != nil {
 		return
 	}

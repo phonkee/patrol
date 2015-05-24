@@ -3,7 +3,7 @@ Ordering object
 Usable for ordering sql queries. Supports allowed fields.
 Method QueryFunc returns function directly usable as QueryQueryFunc in DBFilter.
 */
-package utils
+package ordering
 
 import (
 	"fmt"
@@ -11,6 +11,7 @@ import (
 	"strings"
 
 	"github.com/lann/squirrel"
+	"github.com/phonkee/patrol/utils"
 )
 
 type orderdir int
@@ -20,7 +21,7 @@ const (
 	ORDER_DESC
 )
 
-func NewOrdering(paramName string, allowed ...string) *Ordering {
+func New(paramName string, allowed ...string) *Ordering {
 	return &Ordering{
 		Allowed:   allowed,
 		paramName: paramName,
@@ -73,7 +74,7 @@ func (o *Ordering) Order(orderstring string) (result *Ordering) {
 	return
 }
 
-func (o *Ordering) QueryFunc() QueryFunc {
+func (o *Ordering) QueryFunc() utils.QueryFunc {
 	return func(builder squirrel.SelectBuilder) squirrel.SelectBuilder {
 		if o.OrderingOrder != "" {
 			builder = builder.OrderBy(o.OrderingOrder)

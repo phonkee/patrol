@@ -39,24 +39,6 @@ func (p *ProjectsPlugin) URLViews() []*core.URLView {
 			},
 		).Name(settings.ROUTE_PROJECTS_PROJECT_DETAIL).Middlewares(mids...),
 
-		core.NewURLView("/api/projects/project/{project_id:[0-9]+}/eventgroup",
-			func() core.Viewer {
-				return &projects.ProjectDetailEventGroupListAPIView{}
-			},
-		).Name(settings.ROUTE_PROJECTS_PROJECT_DETAIL_EVENTGROUP_LIST).Middlewares(mids...),
-
-		core.NewURLView("/api/projects/project/{project_id:[0-9]+}/eventgroup/{eventgroup_id:[0-9]+}",
-			func() core.Viewer {
-				return &projects.ProjectDetailEventGroupDetailAPIView{}
-			},
-		).Name(settings.ROUTE_PROJECTS_PROJECT_DETAIL_EVENTGROUP_DETAIL).Middlewares(mids...),
-
-		core.NewURLView("/api/projects/project/{project_id:[0-9]+}/eventgroup/{eventgroup_id:[0-9]+}/resolve",
-			func() core.Viewer {
-				return &projects.ProjectDetailEventGroupResolveAPIView{}
-			},
-		).Name(settings.ROUTE_PROJECTS_PROJECT_DETAIL_EVENTGROUP_RESOLVE).Middlewares(mids...),
-
 		core.NewURLView("/api/projects/project/{project_id:[0-9]+}/key",
 			func() core.Viewer {
 				return &projects.ProjectKeyListAPIView{}
@@ -68,12 +50,6 @@ func (p *ProjectsPlugin) URLViews() []*core.URLView {
 				return &projects.ProjectKeyDetailAPIView{}
 			},
 		).Name(settings.ROUTE_PROJECTS_PROJECTKEY_DETAIL).Middlewares(mids...),
-
-		core.NewURLView("/api/projects/project/{project_id:[0-9]+}/eventgroup/{eventgroup_id:[0-9]+}/event/",
-			func() core.Viewer {
-				return &projects.ProjectDetailEventGroupListAPIView{}
-			},
-		).Name(settings.ROUTE_PROJECTS_PROJECT_DETAIL_EVENTGROUP_EVENT_LIST).Middlewares(mids...),
 	}
 }
 func (p *ProjectsPlugin) Migrations() []core.Migrationer {

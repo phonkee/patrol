@@ -203,6 +203,12 @@ func (c *CommonListRoutesCommand) Run() error {
 
 	fmt.Printf("List of registered routes:\n\n")
 	c.pr.Do(func(plugin core.Pluginer) error {
+
+		// no urls, no entry
+		if len(plugin.URLViews()) == 0 {
+			return nil
+		}
+
 		fmt.Println(sectioncolor("[" + plugin.ID() + "]"))
 
 		for _, uv := range plugin.URLViews() {

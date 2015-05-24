@@ -1,4 +1,4 @@
-package utils
+package query_params
 
 import (
 	"net/url"
@@ -25,7 +25,7 @@ func TestQueryParams(t *testing.T) {
 			uv := make(url.Values)
 			uv.Set(varname, item.input)
 
-			qp := NewQueryParams(uv)
+			qp := New(uv)
 			So(qp.GetInt(varname, item.def), ShouldEqual, item.expected)
 		}
 
@@ -63,7 +63,7 @@ func TestQueryParams(t *testing.T) {
 			uv := make(url.Values)
 			uv.Set(varname, item.input)
 
-			qp := NewQueryParams(uv)
+			qp := New(uv)
 			So(qp.GetBool(varname, item.def), ShouldEqual, item.expected)
 		}
 
@@ -87,7 +87,7 @@ func TestQueryParams(t *testing.T) {
 			uv := make(url.Values)
 			uv.Set(varname, item.input)
 
-			qp := NewQueryParams(uv)
+			qp := New(uv)
 			So(qp.GetFloat(varname, item.def), ShouldEqual, item.expected)
 		}
 

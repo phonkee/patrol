@@ -11,6 +11,7 @@ import (
 	"github.com/golang/glog"
 	"github.com/mgutz/ansi"
 	"github.com/phonkee/patrol/context"
+	"github.com/phonkee/patrol/rest/paginator"
 	"github.com/phonkee/patrol/settings"
 	"github.com/phonkee/patrol/types"
 	"github.com/phonkee/patrol/utils"
@@ -95,7 +96,7 @@ func DBFilter(ctx *context.Context, sel, dbtable string, unsafe bool, target int
 	return
 }
 
-func DBFilterCount(ctx *context.Context, dbtable string, paging *utils.Paging, qfs ...utils.QueryFunc) (err error) {
+func DBFilterCount(ctx *context.Context, dbtable string, paging *paginator.Paginator, qfs ...utils.QueryFunc) (err error) {
 	qb := utils.QueryBuilderTable(dbtable, "COUNT(*)", qfs...)
 	var (
 		query string

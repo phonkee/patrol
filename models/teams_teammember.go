@@ -5,6 +5,7 @@ import (
 
 	"github.com/lann/squirrel"
 	"github.com/phonkee/patrol/context"
+	"github.com/phonkee/patrol/rest/paginator"
 	"github.com/phonkee/patrol/types"
 	"github.com/phonkee/patrol/utils"
 )
@@ -101,7 +102,7 @@ func (t *TeamMemberManager) NewTeamMemberList() []*TeamMember {
 }
 
 // Filter team memebers from database with paging support
-func (t *TeamMemberManager) FilterPaged(target interface{}, paging *utils.Paging, qfs ...utils.QueryFunc) (err error) {
+func (t *TeamMemberManager) FilterPaged(target interface{}, paging *paginator.Paginator, qfs ...utils.QueryFunc) (err error) {
 	if err = DBFilterCount(t.context, TEAMS_TEAMMEMBER_DB_TABLE, paging, qfs...); err != nil {
 		return
 	}

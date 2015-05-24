@@ -1,4 +1,4 @@
-package utils
+package paginator
 
 import (
 	"bytes"
@@ -11,8 +11,8 @@ import (
 	. "github.com/smartystreets/goconvey/convey"
 )
 
-func TestPaging(t *testing.T) {
-	pp := NewPagingParams("limit", "page")
+func TestPaginator(t *testing.T) {
+	pp := NewPaginatorParams("limit", "page")
 	Convey("test min/max/default limit", t, func() {
 		data := []struct {
 			min      int
@@ -27,7 +27,7 @@ func TestPaging(t *testing.T) {
 		}
 
 		for _, item := range data {
-			p := NewPaging(item.min, item.max, item.def, pp)
+			p := NewPaginator(item.min, item.max, item.def, pp)
 			p.SetLimit(item.value)
 			So(p.Limit, ShouldEqual, item.expected)
 		}
@@ -43,12 +43,12 @@ func TestPaging(t *testing.T) {
 			{5, 10, 20},
 		}
 		for _, item := range data {
-			paging := NewPaging(item.limit, item.limit, item.limit, pp)
-			paging.SetCount(item.count)
-			So(paging.Count, ShouldEqual, item.count)
-			paging.SetPage(item.page)
-			So(paging.Page, ShouldEqual, item.page)
-			So(paging.Offset(), ShouldEqual, paging.Page*paging.Limit)
+			Paginator := NewPaginator(item.limit, item.limit, item.limit, pp)
+			Paginator.SetCount(item.count)
+			So(Paginator.Count, ShouldEqual, item.count)
+			Paginator.SetPage(item.page)
+			So(Paginator.Page, ShouldEqual, item.page)
+			So(Paginator.Offset(), ShouldEqual, Paginator.Page*Paginator.Limit)
 		}
 	})
 
@@ -84,17 +84,17 @@ func TestPaging(t *testing.T) {
 
 			r, err := http.NewRequest("GET", buf.String(), nil)
 			So(err, ShouldBeNil)
-			p := NewPaging(item.minlimit, item.maxlimit, item.minlimit, NewPagingParams(tpldata.LimitParam, tpldata.PageParam))
+			p := NewPaginator(item.minlimit, item.maxlimit, item.minlimit, NewPaginatorParams(tpldata.LimitParam, tpldata.PageParam))
 			p.ReadRequest(r)
 			So(p.Limit, ShouldEqual, item.limit)
 			So(p.Page, ShouldEqual, item.page)
 		}
 	})
 
-	Convey("test api paging", t, func() {
+	Convey("test api Paginator", t, func() {
 		page := int(13)
 		limit := int(6)
-		p := NewPaging(10, 100, 10, pp)
+		p := NewPaginator(10, 100, 10, pp)
 		p.SetPage(page)
 		p.SetLimit(limit)
 		values := url.Values{}
@@ -104,7 +104,7 @@ func TestPaging(t *testing.T) {
 		So(vqp.GetInt(p.Params.LimitParam), ShouldEqual, p.Limit)
 		So(vqp.GetInt(p.Params.PageParam), ShouldEqual, p.Page)
 
-		dp := NewPaging(-1, -1, -1, pp)
+		dp := NewPaginator(-1, -1, -1, pp)
 		values2 := url.Values{}
 		valuesResultDisabled := NewQueryParams(dp.UpdateURLValues(values2))
 
@@ -114,10 +114,10 @@ func TestPaging(t *testing.T) {
 	})
 
 	Convey("test LimitOffset", t, func() {
-		dp := NewPaging(-1, -1, -1, pp)
+		dp := NewPaginator(-1, -1, -1, pp)
 		So(dp.LimitOffset(), ShouldEqual, "")
 
-		ap := NewPaging(10, 100, 10, pp)
+		ap := NewPaginator(10, 100, 10, pp)
 		lo := ap.LimitOffset()
 		So(lo, ShouldEqual, fmt.Sprintf("LIMIT %d", ap.Limit))
 
@@ -127,7 +127,7 @@ func TestPaging(t *testing.T) {
 	})
 
 	Convey("test UpdateBuilder", t, func() {
-		ap := NewPaging(10, 100, 10, pp)
+		ap := NewPaginator(10, 100, 10, pp)
 		ap.SetPage(10)
 		qb := QueryBuilder().Select("*").From("table")
 		qb = ap.UpdateBuilder(qb)
@@ -137,7 +137,7 @@ func TestPaging(t *testing.T) {
 		So(query, ShouldContainSubstring, fmt.Sprintf("LIMIT %d", ap.Limit))
 		So(query, ShouldContainSubstring, fmt.Sprintf("OFFSET %d", ap.Offset()))
 
-		dp := NewPaging(-1, -1, -1, pp)
+		dp := NewPaginator(-1, -1, -1, pp)
 		dqb := QueryBuilder().Select("*").From("table")
 		dqb = dp.UpdateBuilder(dqb)
 		queryd, _, _ := dqb.ToSql()

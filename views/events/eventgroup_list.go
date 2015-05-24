@@ -1,4 +1,4 @@
-package projects
+package events
 
 import (
 	"net/http"
@@ -12,7 +12,7 @@ import (
 	"github.com/phonkee/patrol/views/mixins"
 )
 
-type ProjectDetailEventGroupListAPIView struct {
+type EventGroupListAPIView struct {
 	core.JSONView
 
 	// returns member type
@@ -23,7 +23,7 @@ type ProjectDetailEventGroupListAPIView struct {
 }
 
 // check if user is member of project
-func (p *ProjectDetailEventGroupListAPIView) Before(w http.ResponseWriter, r *http.Request) (err error) {
+func (p *EventGroupListAPIView) Before(w http.ResponseWriter, r *http.Request) (err error) {
 	p.context = p.Context(r)
 	if _, err = p.MemberType(p.context, r); err != nil {
 		response.New().Status(http.StatusUnauthorized).Write(w, r)
@@ -38,7 +38,7 @@ func (p *ProjectDetailEventGroupListAPIView) Before(w http.ResponseWriter, r *ht
 /*
 Retrieve list of event groups for given project
 */
-func (p *ProjectDetailEventGroupListAPIView) GET(w http.ResponseWriter, r *http.Request) {
+func (p *EventGroupListAPIView) GET(w http.ResponseWriter, r *http.Request) {
 	var err error
 	response := response.New()
 	egm := models.NewEventGroupManager(p.context)

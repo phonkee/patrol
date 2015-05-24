@@ -1,4 +1,4 @@
-package utils
+package query_params
 
 import (
 	"net/url"
@@ -13,7 +13,7 @@ var (
 	}
 )
 
-func NewQueryParams(values url.Values) *QueryParams {
+func New(values url.Values) *QueryParams {
 	return &QueryParams{
 		values,
 	}

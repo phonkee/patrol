@@ -66,18 +66,17 @@ Retrieve list of registered users
 func (u *UserListAPIView) GET(w http.ResponseWriter, r *http.Request) {
 	var err error
 	manager := models.NewUserManager(u.context)
-
-	paging := manager.NewPaging()
+	paginator := manager.NewPaginator()
 
 	// @TODO: check permissions
 
 	list := []*UserListItemSerializer{}
-	if err = manager.FilterPaged(&list, paging); err != nil {
+	if err = manager.FilterPaged(&list, paginator); err != nil {
 		response.New(http.StatusInternalServerError).Write(w, r)
 		return
 	}
 
-	response.New(http.StatusOK).Result(list).Paging(paging).Write(w, r)
+	response.New(http.StatusOK).Result(list).Paging(paginator).Write(w, r)
 	return
 }
 

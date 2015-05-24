@@ -16,7 +16,7 @@ import (
 	"github.com/phonkee/patrol/types"
 )
 
-type StoreEventAPIView struct {
+type EventStoreAPIView struct {
 	core.JSONView
 
 	context *context.Context
@@ -24,13 +24,13 @@ type StoreEventAPIView struct {
 	project *models.Project
 }
 
-func (s *StoreEventAPIView) GetProjectID(r *http.Request) (id int64, err error) {
+func (s *EventStoreAPIView) GetProjectID(r *http.Request) (id int64, err error) {
 	vars := mux.Vars(r)
 	id, err = strconv.ParseInt(vars["project_id"], 10, 0)
 	return
 }
 
-func (s *StoreEventAPIView) Before(w http.ResponseWriter, r *http.Request) (err error) {
+func (s *EventStoreAPIView) Before(w http.ResponseWriter, r *http.Request) (err error) {
 	s.context = s.Context(r)
 	var pid int64
 	if pid, err = s.GetProjectID(r); err != nil {
@@ -64,7 +64,7 @@ func (s *StoreEventAPIView) Before(w http.ResponseWriter, r *http.Request) (err 
 	return nil
 }
 
-func (s *StoreEventAPIView) POST(w http.ResponseWriter, r *http.Request) {
+func (s *EventStoreAPIView) POST(w http.ResponseWriter, r *http.Request) {
 	var err error
 	response := response.New()
 

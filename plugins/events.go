@@ -2,11 +2,12 @@ package plugins
 
 import (
 	"github.com/golang/glog"
+	"github.com/justinas/alice"
 	"github.com/phonkee/patrol/commands"
 	"github.com/phonkee/patrol/context"
 	"github.com/phonkee/patrol/core"
+	"github.com/phonkee/patrol/middlewares"
 	"github.com/phonkee/patrol/models"
-	"github.com/phonkee/patrol/parser"
 	"github.com/phonkee/patrol/settings"
 	"github.com/phonkee/patrol/signals"
 	"github.com/phonkee/patrol/views/events"
@@ -66,18 +67,37 @@ func (e *EventsPlugin) SendOnEventSignal(event *models.Event, eventgroup *models
 }
 
 func (e *EventsPlugin) URLViews() []*core.URLView {
-	sev := func() core.Viewer {
-		return &events.StoreEventAPIView{}
+	mids := []alice.Constructor{
+		middlewares.AuthTokenValidMiddleware(),
 	}
 	result := []*core.URLView{
-		core.NewURLView("/api/{project_id:[0-9]+}/store/", sev).Name(settings.ROUTE_EVENTS_EVENT_STORE),
-	}
+		core.NewURLView("/api/{project_id:[0-9]+}/store/",
+			func() core.Viewer {
+				return &events.EventStoreAPIView{}
+			},
+		).Name(settings.ROUTE_EVENTS_EVENT_STORE),
+		core.NewURLView("/api/projects/project/{project_id:[0-9]+}/eventgroup",
+			func() core.Viewer {
+				return &events.EventGroupListAPIView{}
+			},
+		).Name(settings.ROUTE_EVENTS_EVENTGROUP_LIST).Middlewares(mids...),
 
-	// add parser registry views (templates...)
-	if views, err := parser.Registry.URLViews(e.context); err == nil {
-		for _, view := range views {
-			result = append(result, view)
-		}
+		core.NewURLView("/api/projects/project/{project_id:[0-9]+}/eventgroup/{eventgroup_id:[0-9]+}",
+			func() core.Viewer {
+				return &events.EventGroupDetailAPIView{}
+			},
+		).Name(settings.ROUTE_EVENTS_EVENTGROUP_DETAIL).Middlewares(mids...),
+
+		core.NewURLView("/api/projects/project/{project_id:[0-9]+}/eventgroup/{eventgroup_id:[0-9]+}/resolve",
+			func() core.Viewer {
+				return &events.EventGroupResolveAPIView{}
+			},
+		).Name(settings.ROUTE_EVENTS_EVENTGROUP_RESOLVE).Middlewares(mids...),
+		core.NewURLView("/api/projects/project/{project_id:[0-9]+}/eventgroup/{eventgroup_id:[0-9]+}/event/",
+			func() core.Viewer {
+				return &events.EventListView{}
+			},
+		).Name(settings.ROUTE_EVENTS_EVENT_LIST).Middlewares(mids...),
 	}
 
 	return result

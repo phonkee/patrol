@@ -2,6 +2,7 @@ package models
 
 import (
 	"github.com/phonkee/patrol/context"
+	"github.com/phonkee/patrol/rest/paginator"
 	"github.com/phonkee/patrol/utils"
 )
 
@@ -88,7 +89,7 @@ func (p *PermissionManager) Filter(target interface{}, qfs ...utils.QueryFunc) e
 /* Filters permissions from database
 qfs is list of utils.QueryFuncs - that are functions that alter query builder
 */
-func (p *PermissionManager) FilterPaged(target interface{}, paging *utils.Paging, qfs ...utils.QueryFunc) (err error) {
+func (p *PermissionManager) FilterPaged(target interface{}, paging *paginator.Paginator, qfs ...utils.QueryFunc) (err error) {
 	if err = DBFilterCount(p.context, AUTH_PERMISSION_DB_TABLE, paging, qfs...); err != nil {
 		return
 	}

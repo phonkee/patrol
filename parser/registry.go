@@ -6,12 +6,7 @@ import (
 	"sort"
 	"sync"
 
-	"github.com/phonkee/patrol/context"
-	"github.com/phonkee/patrol/rest/response"
-
 	"github.com/golang/glog"
-	"github.com/gorilla/mux"
-	"github.com/phonkee/patrol/core"
 )
 
 var (
@@ -97,57 +92,6 @@ func (e *EventParserRegistry) Parse(body []byte, version string) (result []*RawE
 		return
 	}
 
-	return
-}
-
-func NewParserInterfaceTemplateView(context *context.Context) *ParserInterfaceTemplateView {
-	return &ParserInterfaceTemplateView{
-		context: context,
-	}
-}
-
-type ParserInterfaceTemplateView struct {
-	core.JSONView
-	context *context.Context
-}
-
-func (p *ParserInterfaceTemplateView) Clone() core.Viewer {
-	return NewParserInterfaceTemplateView(p.context)
-}
-
-func (v *ParserInterfaceTemplateView) GET(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-
-	var (
-		parser EventParserer
-		err    error
-	)
-
-	if parser, err = Registry.GetEventParser(vars["parser"]); err != nil {
-		response.New(http.StatusNotFound).Write(w, r)
-	}
-
-	for _, item := range parser.EventInterfaceParserRegistry().interfaces {
-		search := append([]string{item.id}, item.aliases...)
-		for _, i := range search {
-			if i == vars["interface"] {
-				response.New(http.StatusOK).Raw(item.f().Template()).Write(w, r)
-				return
-			}
-		}
-	}
-	response.New(http.StatusNotFound).Write(w, r)
-
-	return
-}
-
-func (e *EventParserRegistry) URLViews(context *context.Context) (result []*core.URLView, err error) {
-	result = []*core.URLView{
-		core.NewURLView(
-			"/api/parser/{parser:[0-9]+}/interface/{interface:[0-9a-zA-Z]+}/template",
-			func() core.Viewer { return NewParserInterfaceTemplateView(context) },
-		).Name("api-parser-templates"),
-	}
 	return
 }
 

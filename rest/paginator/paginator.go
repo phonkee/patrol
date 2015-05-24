@@ -1,4 +1,4 @@
-package utils
+package paginator
 
 import (
 	"bytes"
@@ -7,22 +7,23 @@ import (
 	"net/url"
 
 	"github.com/lann/squirrel"
+	"github.com/phonkee/patrol/rest/query_params"
 )
 
-// Returns new paging instance
-func NewPaging(minlimit, maxlimit, def int, params *PagingParams) *Paging {
-	paging := &Paging{
+// Returns new Paginator instance
+func New(minlimit, maxlimit, def int, params *PaginatorParams) *Paginator {
+	Paginator := &Paginator{
 		MinLimit:     minlimit,
 		MaxLimit:     maxlimit,
 		DefaultLimit: def,
 		Params:       params,
 	}
-	paging.SetLimit(def)
-	return paging
+	Paginator.SetLimit(def)
+	return Paginator
 }
 
-// Paging implementation
-type Paging struct {
+// Paginator implementation
+type Paginator struct {
 	Limit int `json:"limit"`
 	Page  int `json:"page"`
 	Count int `json:"count"`
@@ -32,12 +33,12 @@ type Paging struct {
 	MaxLimit     int `json:"-"`
 	DefaultLimit int `json:"-"`
 
-	// paging params
-	Params *PagingParams `json:"-"`
+	// Paginator params
+	Params *PaginatorParams `json:"-"`
 }
 
-func (p *Paging) ReadRequest(r *http.Request) *Paging {
-	qp := NewQueryParams(r.URL.Query())
+func (p *Paginator) ReadRequest(r *http.Request) *Paginator {
+	qp := query_params.New(r.URL.Query())
 	p.SetLimit(qp.GetInt(p.Params.LimitParam, -1))
 	p.SetPage(qp.GetInt(p.Params.PageParam, -1))
 
@@ -46,7 +47,7 @@ func (p *Paging) ReadRequest(r *http.Request) *Paging {
 	return p
 }
 
-func (p *Paging) SetLimit(limit int) *Paging {
+func (p *Paginator) SetLimit(limit int) *Paginator {
 	if limit > p.MaxLimit || limit < p.MinLimit {
 		p.Limit = p.DefaultLimit
 		return p
@@ -55,7 +56,7 @@ func (p *Paging) SetLimit(limit int) *Paging {
 	return p
 }
 
-func (p *Paging) SetPage(page int) *Paging {
+func (p *Paginator) SetPage(page int) *Paginator {
 	if page < 0 {
 		p.Page = 0
 	} else {
@@ -64,17 +65,17 @@ func (p *Paging) SetPage(page int) *Paging {
 	return p
 }
 
-func (p *Paging) SetCount(count int) *Paging {
+func (p *Paginator) SetCount(count int) *Paginator {
 	p.Count = count
 	return p
 }
 
-func (p *Paging) Offset() int {
+func (p *Paginator) Offset() int {
 	return p.Limit * p.Page
 }
 
 // returns limit/offset clause sql query
-func (p *Paging) LimitOffset() (result string) {
+func (p *Paginator) LimitOffset() (result string) {
 	if p.Limit <= 0 {
 		result = ""
 	} else {
@@ -88,15 +89,15 @@ func (p *Paging) LimitOffset() (result string) {
 	return
 }
 
-func (p *Paging) UpdateBuilder(builder squirrel.SelectBuilder) squirrel.SelectBuilder {
+func (p *Paginator) UpdateBuilder(builder squirrel.SelectBuilder) squirrel.SelectBuilder {
 	if p.Limit <= 0 {
 		return builder
 	}
 	return builder.Limit(uint64(p.Limit)).Offset(uint64(p.Offset()))
 }
 
-// updates url values with paging values
-func (p *Paging) UpdateURLValues(values url.Values) url.Values {
+// updates url values with Paginator values
+func (p *Paginator) UpdateURLValues(values url.Values) url.Values {
 	if p.Limit <= 0 {
 		return values
 	}
@@ -108,15 +109,15 @@ func (p *Paging) UpdateURLValues(values url.Values) url.Values {
 }
 
 /*
-	PagingParams
+	PaginatorParams
 */
-type PagingParams struct {
+type PaginatorParams struct {
 	LimitParam string
 	PageParam  string
 }
 
-func NewPagingParams(LimitParam, PageParam string) *PagingParams {
-	return &PagingParams{
+func NewParams(LimitParam, PageParam string) *PaginatorParams {
+	return &PaginatorParams{
 		LimitParam: LimitParam,
 		PageParam:  PageParam,
 	}

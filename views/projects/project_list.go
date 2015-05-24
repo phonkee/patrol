@@ -33,7 +33,7 @@ Retrieve list of projects
 */
 func (p *ProjectListAPIView) GET(w http.ResponseWriter, r *http.Request) {
 	manager := models.NewProjectManager(p.context)
-	paging := manager.NewPagingFromRequest(r)
+	paging := manager.NewPaginatorFromRequest(r)
 	projects := manager.NewProjectList()
 
 	if err := manager.FilterPaged(&projects, paging); err != nil {

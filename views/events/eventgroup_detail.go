@@ -1,4 +1,4 @@
-package projects
+package events
 
 import (
 	"errors"
@@ -15,7 +15,7 @@ var (
 	ErrInvalidParam = errors.New("invalid_url_param")
 )
 
-type ProjectDetailEventGroupDetailAPIView struct {
+type EventGroupDetailAPIView struct {
 	core.JSONView
 
 	// returns member type
@@ -31,7 +31,7 @@ type ProjectDetailEventGroupDetailAPIView struct {
 	CHeck if eventgroup project is same as project
 	Then check whether user has permissions to view this eventgroup
 */
-func (p *ProjectDetailEventGroupDetailAPIView) Before(w http.ResponseWriter, r *http.Request) (err error) {
+func (p *EventGroupDetailAPIView) Before(w http.ResponseWriter, r *http.Request) (err error) {
 	if err = p.GetInstances(w, r); err != nil {
 		return
 	}
@@ -50,6 +50,6 @@ func (p *ProjectDetailEventGroupDetailAPIView) Before(w http.ResponseWriter, r *
 	Since all loading is performed in Before method this is really simple -
 	just make response
 */
-func (p *ProjectDetailEventGroupDetailAPIView) GET(w http.ResponseWriter, r *http.Request) {
+func (p *EventGroupDetailAPIView) GET(w http.ResponseWriter, r *http.Request) {
 	response.New(http.StatusOK).Result(p.EventGroup).Write(w, r)
 }

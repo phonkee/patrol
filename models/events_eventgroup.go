@@ -8,6 +8,7 @@ import (
 	"github.com/lann/squirrel"
 	"github.com/phonkee/patrol/context"
 	"github.com/phonkee/patrol/parser"
+	"github.com/phonkee/patrol/rest/paginator"
 	"github.com/phonkee/patrol/rest/validator"
 	"github.com/phonkee/patrol/settings"
 	"github.com/phonkee/patrol/types"
@@ -172,7 +173,7 @@ func (e *EventGroupManager) Filter(target interface{}, qfs ...utils.QueryFunc) e
 }
 
 // Filter results with paging
-func (e *EventGroupManager) FilterPaged(target interface{}, paging *utils.Paging, qfs ...utils.QueryFunc) (err error) {
+func (e *EventGroupManager) FilterPaged(target interface{}, paging *paginator.Paginator, qfs ...utils.QueryFunc) (err error) {
 	if err = DBFilterCount(e.context, EVENTS_EVENTGROUP_DB_TABLE, paging, qfs...); err != nil {
 		return
 	}

@@ -5,6 +5,7 @@ import (
 
 	sq "github.com/lann/squirrel"
 	"github.com/phonkee/patrol/context"
+	"github.com/phonkee/patrol/rest/paginator"
 	"github.com/phonkee/patrol/rest/validator"
 	"github.com/phonkee/patrol/types"
 	"github.com/phonkee/patrol/utils"
@@ -138,7 +139,7 @@ func (p *ProjectKeyManager) Filter(target interface{}, qfs ...utils.QueryFunc) e
 /* Filters projects from database
 qfs is list of QueryFuncs - that are functions that alter query builder
 */
-func (p *ProjectKeyManager) FilterPaged(target interface{}, paging *utils.Paging, qfs ...utils.QueryFunc) (err error) {
+func (p *ProjectKeyManager) FilterPaged(target interface{}, paging *paginator.Paginator, qfs ...utils.QueryFunc) (err error) {
 	if err = DBFilterCount(p.context, PROJECTS_PROJECTKEY_DB_TABLE, paging, qfs...); err != nil {
 		return
 	}

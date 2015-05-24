@@ -5,6 +5,8 @@ import (
 	"net/http"
 
 	"github.com/lann/squirrel"
+	"github.com/phonkee/patrol/rest/ordering"
+	"github.com/phonkee/patrol/rest/paginator"
 	"github.com/phonkee/patrol/settings"
 	"github.com/phonkee/patrol/utils"
 )
@@ -30,9 +32,9 @@ func (m *Manager) Remarshal(source, target interface{}) (err error) {
 }
 
 // returns paging set with settings
-func (m *Manager) NewPaging(params ...*utils.PagingParams) *utils.Paging {
-	pp := m.NewPagingParamsFromList(params)
-	return utils.NewPaging(
+func (m *Manager) NewPaginator(params ...*paginator.PaginatorParams) *paginator.Paginator {
+	pp := m.NewParamsFromList(params)
+	return paginator.New(
 		settings.PAGING_MIN_LIMIT,
 		settings.PAGING_MAX_LIMIT,
 		settings.PAGING_DEFAULT_LIMIT,
@@ -41,28 +43,28 @@ func (m *Manager) NewPaging(params ...*utils.PagingParams) *utils.Paging {
 }
 
 // returns paging set with settings
-func (m *Manager) NewPagingFromRequest(r *http.Request, params ...*utils.PagingParams) *utils.Paging {
-	paging := m.NewPaging(params...)
+func (m *Manager) NewPaginatorFromRequest(r *http.Request, params ...*paginator.PaginatorParams) *paginator.Paginator {
+	paging := m.NewPaginator(params...)
 	paging.ReadRequest(r)
 	return paging
 }
 
-func (m *Manager) NewPagingParams() *utils.PagingParams {
-	return utils.NewPagingParams(
+func (m *Manager) NewPaginatorParams() *paginator.PaginatorParams {
+	return paginator.NewParams(
 		settings.PAGING_DEFAULT_LIMIT_PARAM_NAME,
 		settings.PAGING_DEFAULT_PAGE_PARAM_NAME,
 	)
 }
 
-func (m *Manager) NewPagingParamsFromList(params []*utils.PagingParams) *utils.PagingParams {
+func (m *Manager) NewParamsFromList(params []*paginator.PaginatorParams) *paginator.PaginatorParams {
 	if len(params) > 0 {
 		return params[0]
 	}
-	return m.NewPagingParams()
+	return m.NewPaginatorParams()
 }
 
-func (m *Manager) NewOrdering(allowed ...string) *utils.Ordering {
-	return utils.NewOrdering(settings.ORDERING_DEFAULT_PARAM_NAME, allowed...)
+func (m *Manager) NewOrdering(allowed ...string) *ordering.Ordering {
+	return ordering.New(settings.ORDERING_DEFAULT_PARAM_NAME, allowed...)
 }
 
 /* Various Query filter funcs
@@ -77,7 +79,7 @@ func (m *Manager) QueryFilterWhere(pred interface{}, args ...interface{}) utils.
 
 /* Apply paging to SelectBuilder
  */
-func (m *Manager) QueryFilterPaging(paging *utils.Paging) utils.QueryFunc {
+func (m *Manager) QueryFilterPaging(paging *paginator.Paginator) utils.QueryFunc {
 	return func(builder squirrel.SelectBuilder) squirrel.SelectBuilder {
 		return paging.UpdateBuilder(builder)
 	}

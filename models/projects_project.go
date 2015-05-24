@@ -11,6 +11,7 @@ import (
 	"github.com/gorilla/mux"
 	sq "github.com/lann/squirrel"
 	"github.com/phonkee/patrol/context"
+	"github.com/phonkee/patrol/rest/paginator"
 	"github.com/phonkee/patrol/rest/validator"
 	"github.com/phonkee/patrol/settings"
 	"github.com/phonkee/patrol/types"
@@ -188,7 +189,7 @@ func (p *ProjectManager) Filter(target interface{}, qfs ...utils.QueryFunc) erro
 /* Filters projects from database
 qfs is list of QueryFuncs - that are functions that alter query builder
 */
-func (p *ProjectManager) FilterPaged(target interface{}, paging *utils.Paging, qfs ...utils.QueryFunc) (err error) {
+func (p *ProjectManager) FilterPaged(target interface{}, paging *paginator.Paginator, qfs ...utils.QueryFunc) (err error) {
 	if err = DBFilterCount(p.context, PROJECTS_PROJECT_DB_TABLE, paging, qfs...); err != nil {
 		return
 	}

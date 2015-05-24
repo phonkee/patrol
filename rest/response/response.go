@@ -40,9 +40,9 @@ import (
 
 	ctx "github.com/phonkee/patrol/context"
 	"github.com/phonkee/patrol/rest/metadata"
+	"github.com/phonkee/patrol/rest/ordering"
+	"github.com/phonkee/patrol/rest/paginator"
 	"github.com/phonkee/patrol/settings"
-
-	"github.com/phonkee/patrol/utils"
 )
 
 // Returns new response
@@ -66,8 +66,8 @@ type Response struct {
 	Result_      interface{} `json:"result,omitempty"`
 	ResultSize_  *int        `json:"result_size,omitempty"`
 
-	Paging_   *utils.Paging   `json:"paging,omitempty"`
-	Ordering_ *utils.Ordering `json:"ordering,omitempty"`
+	Paging_   *paginator.Paginator `json:"paging,omitempty"`
+	Ordering_ *ordering.Ordering   `json:"ordering,omitempty"`
 
 	Error_   interface{}       `json:"error,omitempty"`
 	Headers_ map[string]string `json:"-"`
@@ -113,12 +113,12 @@ func (r *Response) Message(message string) *Response {
 	r.Message_ = message
 	return r
 }
-func (r *Response) Ordering(ordering *utils.Ordering) *Response {
+func (r *Response) Ordering(ordering *ordering.Ordering) *Response {
 	r.Ordering_ = ordering
 	return r
 }
 
-func (r *Response) Paging(paging *utils.Paging) *Response {
+func (r *Response) Paging(paging *paginator.Paginator) *Response {
 	r.Paging_ = paging
 	return r
 }
