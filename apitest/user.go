@@ -1,9 +1,6 @@
 package apitest
 
 import (
-	"math/rand"
-	"time"
-
 	"github.com/Pallinder/go-randomdata"
 	"github.com/phonkee/patrol/context"
 	"github.com/phonkee/patrol/models"
@@ -14,7 +11,7 @@ func CreateUser(context *context.Context, funcs ...func(user *models.User)) (*mo
 	var err error
 	manager := models.NewUserManager(context)
 
-	rand.Seed(time.Now().UnixNano())
+	// rand.Seed(time.Now().UnixNano())
 
 	/*
 		@TODO: big todo, create user should use rest api. som this will be doing two things

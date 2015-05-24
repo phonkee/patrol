@@ -33,7 +33,7 @@ func TestProjectMemberCreate(t *testing.T) {
 
 		serializer := &projects.ProjectMemberCreate{
 			Type:   models.MEMBER_TYPE_MEMBER,
-			UserID: types.PrimaryKey(1),
+			UserID: types.PrimaryKey(1).ToForeignKey(),
 		}
 		request.JSONBody(serializer).Do()
 		So(request.Response().Code, ShouldEqual, http.StatusUnauthorized)
@@ -48,7 +48,7 @@ func TestProjectMemberCreate(t *testing.T) {
 
 		serializer := &projects.ProjectMemberCreate{
 			Type:   models.MEMBER_TYPE_MEMBER,
-			UserID: types.PrimaryKey(1),
+			UserID: types.PrimaryKey(1).ToForeignKey(),
 		}
 		request.JSONBody(serializer).Do()
 		So(request.Response().Code, ShouldEqual, http.StatusForbidden)
@@ -74,7 +74,7 @@ func TestProjectMemberCreate(t *testing.T) {
 
 		serializer := &projects.ProjectMemberCreate{
 			Type:   models.MEMBER_TYPE_MEMBER,
-			UserID: other.ID,
+			UserID: other.ID.ToForeignKey(),
 		}
 		request.JSONBody(serializer).Do()
 		So(request.Response().Code, ShouldEqual, http.StatusForbidden)
@@ -95,21 +95,24 @@ func TestProjectMemberCreate(t *testing.T) {
 		err := tm.Insert(patrol.Context)
 		So(err, ShouldBeNil)
 
-		other, errcreate := apitest.CreateUser(patrol.Context)
+		_, errcreate2 := apitest.CreateUser(patrol.Context)
+		So(errcreate2, ShouldBeNil)
+		newuser, errcreate := apitest.CreateUser(patrol.Context)
 		So(errcreate, ShouldBeNil)
 
-		serializer := &projects.ProjectMemberCreate{
+		pmcser := &projects.ProjectMemberCreate{
 			Type:   models.MEMBER_TYPE_MEMBER,
-			UserID: other.ID,
+			UserID: newuser.ID.ToForeignKey(),
 		}
 		request := session.Request("POST", settings.ROUTE_PROJECTS_PROJECTMEMBER_LIST, "project_id", project.ID.String())
-		request.JSONBody(serializer).Do()
+		request.JSONBody(pmcser).Do()
 		So(request.Response().Code, ShouldEqual, http.StatusCreated)
 
 		requestget := session.Request("GET", settings.ROUTE_PROJECTS_PROJECTMEMBER_LIST, "project_id", project.ID.String()).Do()
 		response := struct {
 			Result []struct {
-				ID types.ForeignKey `json:"id"`
+				ID     types.ForeignKey `json:"id"`
+				UserID types.ForeignKey `json:"user_id"`
 			} `json:"result"`
 			ResultSize int `json:"result_size"`
 		}{}
@@ -118,7 +121,7 @@ func TestProjectMemberCreate(t *testing.T) {
 
 		found := false
 		for _, item := range response.Result {
-			if item.ID == other.ID.ToForeignKey() {
+			if item.UserID == pmcser.UserID {
 				found = true
 			}
 		}
@@ -140,16 +143,18 @@ func TestProjectMemberCreate(t *testing.T) {
 
 		serializer := &projects.ProjectMemberCreate{
 			Type:   models.MEMBER_TYPE_MEMBER,
-			UserID: other.ID,
+			UserID: other.ID.ToForeignKey(),
 		}
 		request := session.Request("POST", settings.ROUTE_PROJECTS_PROJECTMEMBER_LIST, "project_id", project2.ID.String())
 		request.JSONBody(serializer).Do()
+
 		So(request.Response().Code, ShouldEqual, http.StatusCreated)
 
 		requestget := session.Request("GET", settings.ROUTE_PROJECTS_PROJECTMEMBER_LIST, "project_id", project2.ID.String()).Do()
 		response := struct {
 			Result []struct {
-				ID types.ForeignKey `json:"id"`
+				ID     types.ForeignKey `json:"id"`
+				UserID types.ForeignKey `json:"user_id"`
 			} `json:"result"`
 			ResultSize int `json:"result_size"`
 		}{}
@@ -158,7 +163,7 @@ func TestProjectMemberCreate(t *testing.T) {
 
 		found := false
 		for _, item := range response.Result {
-			if item.ID == other.ID.ToForeignKey() {
+			if item.UserID == serializer.UserID {
 				found = true
 			}
 		}

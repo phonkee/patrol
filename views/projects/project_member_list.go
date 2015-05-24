@@ -118,5 +118,27 @@ func (p *ProjectMemeberListAPIView) POST(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
+	serializer := &ProjectMemberCreate{}
+	if err := p.context.Bind(serializer); err != nil {
+		response.New(http.StatusBadRequest).Write(w, r)
+		return
+	}
+
+	if vr := serializer.Validate(p.context, p.project.TeamID); !vr.IsValid() {
+		response.New(http.StatusBadRequest).Error(vr).Write(w, r)
+		return
+	}
+
+	tm := models.NewTeamMember(func(tm *models.TeamMember) {
+		tm.TeamID = p.project.TeamID
+		tm.UserID = serializer.UserID
+		tm.Type = serializer.Type
+	})
+
+	if err := tm.Insert(p.context); err != nil {
+		response.New(http.StatusInternalServerError).Error(err).Write(w, r)
+		return
+	}
+
 	response.New(http.StatusCreated).Write(w, r)
 }

@@ -9,7 +9,9 @@ import (
 )
 
 var (
-	ErrInvalidTeamID = errors.New("invalid_team")
+	ErrInvalidTeamID     = errors.New("invalid_team")
+	ErrInvalidUserID     = errors.New("invalid_user")
+	ErrInvalidMemberType = errors.New("invalid_member_type")
 )
 
 /*
@@ -35,6 +37,34 @@ func ValidateTeamID(context *context.Context) validator.ValidatorFunc {
 			if err == ErrObjectDoesNotExists {
 				return ErrInvalidTeamID
 			}
+		}
+		return
+	}
+}
+
+/*
+Validate user id
+*/
+func ValidateUserID(context *context.Context) validator.ValidatorFunc {
+	um := NewUserManager(context)
+
+	return func(value interface{}) (err error) {
+		user := um.NewUser()
+		id := value.(types.ForeignKey)
+		if err = um.GetByID(user, id); err != nil {
+			if err == ErrObjectDoesNotExists {
+				return ErrInvalidUserID
+			}
+		}
+		return
+	}
+}
+
+func ValidateMemberType() validator.ValidatorFunc {
+	return func(value interface{}) (err error) {
+		mt := value.(MemberType)
+		if !mt.IsValid() {
+			return ErrInvalidMemberType
 		}
 		return
 	}
