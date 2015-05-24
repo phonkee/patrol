@@ -115,41 +115,55 @@ func TestProjectMemberCreate(t *testing.T) {
 		}{}
 
 		requestget.Scan(&response)
-		So(response.ResultSize, ShouldEqual, 1)
-		So(len(response.Result), ShouldEqual, 1)
+
+		found := false
+		for _, item := range response.Result {
+			if item.ID == other.ID.ToForeignKey() {
+				found = true
+			}
+		}
+
+		So(found, ShouldBeTrue)
 
 	})
 
-	// Convey("Create superuser", t, func() {
-	// 	project2, errcp := apitest.CreateProject(patrol.Context, sudo)
-	// 	So(errcp, ShouldBeNil)
+	Convey("Create superuser", t, func() {
+		project2, errcp := apitest.CreateProject(patrol.Context, sudo)
+		So(errcp, ShouldBeNil)
 
-	// 	session := apitest.NewSession().WithNewUser(func(uu *models.User) {
-	// 		uu.IsSuperuser = true
-	// 	})
+		session := apitest.NewSession().WithNewUser(func(uu *models.User) {
+			uu.IsSuperuser = true
+		})
 
-	// 	other, errcreate := apitest.CreateUser(patrol.Context)
-	// 	So(errcreate, ShouldBeNil)
+		other, errcreate := apitest.CreateUser(patrol.Context)
+		So(errcreate, ShouldBeNil)
 
-	// 	serializer := &projects.ProjectMemberCreate{
-	// 		Type:   models.MEMBER_TYPE_MEMBER,
-	// 		UserID: other.ID,
-	// 	}
-	// 	request := session.Request("POST", settings.ROUTE_PROJECTS_PROJECTMEMBER_LIST, "project_id", project2.ID.String())
-	// 	request.JSONBody(serializer).Do()
-	// 	So(request.Response().Code, ShouldEqual, http.StatusCreated)
+		serializer := &projects.ProjectMemberCreate{
+			Type:   models.MEMBER_TYPE_MEMBER,
+			UserID: other.ID,
+		}
+		request := session.Request("POST", settings.ROUTE_PROJECTS_PROJECTMEMBER_LIST, "project_id", project2.ID.String())
+		request.JSONBody(serializer).Do()
+		So(request.Response().Code, ShouldEqual, http.StatusCreated)
 
-	// 	requestget := session.Request("GET", settings.ROUTE_PROJECTS_PROJECTMEMBER_LIST, "project_id", project2.ID.String()).Do()
-	// 	response := struct {
-	// 		Result []struct {
-	// 			ID types.ForeignKey `json:"id"`
-	// 		} `json:"result"`
-	// 		ResultSize int `json:"result_size"`
-	// 	}{}
+		requestget := session.Request("GET", settings.ROUTE_PROJECTS_PROJECTMEMBER_LIST, "project_id", project2.ID.String()).Do()
+		response := struct {
+			Result []struct {
+				ID types.ForeignKey `json:"id"`
+			} `json:"result"`
+			ResultSize int `json:"result_size"`
+		}{}
 
-	// 	requestget.Scan(&response)
-	// 	So(response.ResultSize, ShouldEqual, 1)
-	// 	So(len(response.Result), ShouldEqual, 1)
+		requestget.Scan(&response)
+
+		found := false
+		for _, item := range response.Result {
+			if item.ID == other.ID.ToForeignKey() {
+				found = true
+			}
+		}
+
+		So(found, ShouldBeTrue)
 
 	})
 
