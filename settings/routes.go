@@ -10,11 +10,12 @@ const (
 	ROUTE_COMMON_VERSION = "api-common-version"
 	ROUTE_COMMON_MONITOR = "api-common-monitor"
 
-	ROUTE_PROJECTS_PROJECT_DETAIL = "api-projects-project-detail"
-	ROUTE_PROJECTS_PROJECT_LIST   = "api-projects-project-list"
-
-	ROUTE_PROJECTS_PROJECTKEY_LIST   = "api-projects-projectkey-list"
-	ROUTE_PROJECTS_PROJECTKEY_DETAIL = "api-projects-projectkey-detail"
+	ROUTE_PROJECTS_PROJECT_LIST         = "api-projects-project-list"
+	ROUTE_PROJECTS_PROJECT_DETAIL       = "api-projects-project-detail"
+	ROUTE_PROJECTS_PROJECTKEY_LIST      = "api-projects-projectkey-list"
+	ROUTE_PROJECTS_PROJECTKEY_DETAIL    = "api-projects-projectkey-detail"
+	ROUTE_PROJECTS_PROJECTMEMBER_LIST   = "api-projects-project-member-list"
+	ROUTE_PROJECTS_PROJECTMEMBER_DETAIL = "api-projects-project-member-detail"
 
 	ROUTE_EVENTS_EVENTGROUP_LIST    = "api-events-eventgroup-list"
 	ROUTE_EVENTS_EVENTGROUP_DETAIL  = "api-events-eventgroup-detail"

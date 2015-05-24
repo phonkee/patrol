@@ -9,6 +9,7 @@ import (
 	"github.com/phonkee/patrol/context"
 	"github.com/phonkee/patrol/core"
 	"github.com/phonkee/patrol/models"
+	"github.com/phonkee/patrol/views/mixins"
 )
 
 var (
@@ -26,6 +27,7 @@ func NewWebsocketAPIView(g func(*models.User, *http.Request) []string) *Websocke
 
 type WebsocketAPIView struct {
 	core.JSONView
+	mixins.AuthUserMixin
 
 	context *context.Context
 
@@ -38,9 +40,9 @@ type WebsocketAPIView struct {
 func (v *WebsocketAPIView) Before(w http.ResponseWriter, r *http.Request) (err error) {
 	v.context = v.Context(r)
 
-	user := models.NewUser()
-	if e := user.Manager(v.context).GetAuthUser(user, r); e == nil {
-		v.user = user
+	v.user = models.NewUser()
+	if e := v.GetAuthUser(v.user, w, r); e == nil {
+		return
 	}
 
 	return

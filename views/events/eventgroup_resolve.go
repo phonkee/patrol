@@ -20,6 +20,7 @@ type EventGroupResolveAPIView struct {
 	user    *models.User
 
 	// returns member type
+	mixins.AuthUserMixin
 	mixins.ProjectMemberTypeMixin
 	mixins.EvenGroupDetailMixin
 }
@@ -31,8 +32,7 @@ func (p *EventGroupResolveAPIView) Before(w http.ResponseWriter, r *http.Request
 	p.context = p.Context(r)
 
 	p.user = models.NewUser()
-	if err = p.user.Manager(p.context).GetAuthUser(p.user, r); err != nil {
-		response.New(http.StatusInternalServerError).Write(w, r)
+	if err = p.GetAuthUser(p.user, w, r); err != nil {
 		return
 	}
 

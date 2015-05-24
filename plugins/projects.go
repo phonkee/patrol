@@ -50,6 +50,18 @@ func (p *ProjectsPlugin) URLViews() []*core.URLView {
 				return &projects.ProjectKeyDetailAPIView{}
 			},
 		).Name(settings.ROUTE_PROJECTS_PROJECTKEY_DETAIL).Middlewares(mids...),
+
+		core.NewURLView("/api/projects/project/{project_id:[0-9]+}/member/",
+			func() core.Viewer {
+				return &projects.ProjectMemeberListAPIView{}
+			},
+		).Name(settings.ROUTE_PROJECTS_PROJECTMEMBER_LIST).Middlewares(mids...),
+
+		core.NewURLView("/api/projects/project/{project_id:[0-9]+}/member/{member_id:[0-9]+}",
+			func() core.Viewer {
+				return &projects.ProjectMemeberDetailAPIView{}
+			},
+		).Name(settings.ROUTE_PROJECTS_PROJECTMEMBER_DETAIL).Middlewares(mids...),
 	}
 }
 func (p *ProjectsPlugin) Migrations() []core.Migrationer {

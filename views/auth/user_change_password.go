@@ -9,41 +9,44 @@ import (
 	"github.com/phonkee/patrol/models"
 	"github.com/phonkee/patrol/rest/response"
 	"github.com/phonkee/patrol/types"
+	"github.com/phonkee/patrol/views/mixins"
 )
 
 type UserChangePasswordAPIView struct {
 	core.JSONView
+	mixins.AuthUserMixin
+
 	context  *context.Context
 	authuser *models.User
 	user     *models.User
 }
 
-func (u *UserChangePasswordAPIView) Before(rw http.ResponseWriter, r *http.Request) (err error) {
+func (u *UserChangePasswordAPIView) Before(w http.ResponseWriter, r *http.Request) (err error) {
 	u.context = u.Context(r)
 
-	um := models.NewUserManager(u.context)
 	u.authuser = models.NewUser()
-	if err = um.GetAuthUser(u.authuser, r); err != nil {
+	if err = u.GetAuthUser(u.authuser, w, r); err != nil {
 		return
 	}
 
 	var id *types.ForeignKey
 
 	if id, err = u.GetMuxVarForeignKey(r, "user_id"); err != nil {
-		response.New(http.StatusInternalServerError).Write(rw, r)
+		response.New(http.StatusInternalServerError).Write(w, r)
 		return
 	}
 
 	u.user = models.NewUser()
+	um := models.NewUserManager(u.context)
 	if err = um.GetByID(u.user, id); err != nil {
-		response.New(http.StatusForbidden).Write(rw, r)
+		response.New(http.StatusForbidden).Write(w, r)
 		return
 	}
 
 	// check
 	if !u.authuser.IsSuperuser {
 		if u.authuser.ID != u.user.ID {
-			response.New(http.StatusForbidden).Write(rw, r)
+			response.New(http.StatusForbidden).Write(w, r)
 			return fmt.Errorf("forbidden")
 		}
 	}

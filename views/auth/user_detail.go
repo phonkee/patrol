@@ -9,6 +9,7 @@ import (
 	"github.com/phonkee/patrol/models"
 	"github.com/phonkee/patrol/rest/response"
 	"github.com/phonkee/patrol/types"
+	"github.com/phonkee/patrol/views/mixins"
 )
 
 /*
@@ -16,6 +17,8 @@ import (
 */
 type UserDetailAPIView struct {
 	core.JSONView
+
+	mixins.AuthUserMixin
 
 	// store context
 	context *context.Context
@@ -35,7 +38,7 @@ type UserDetailAPIView struct {
 		2. user is superuser
 		3. edited user belongs to team that logged user is admin
 */
-func (u *UserDetailAPIView) Before(rw http.ResponseWriter, r *http.Request) (err error) {
+func (u *UserDetailAPIView) Before(w http.ResponseWriter, r *http.Request) (err error) {
 	u.context = u.Context(r)
 
 	var id *types.ForeignKey
@@ -44,23 +47,22 @@ func (u *UserDetailAPIView) Before(rw http.ResponseWriter, r *http.Request) (err
 		return
 	}
 
+	usermanager := models.NewUserManager(u.context)
 	u.user = models.NewUser()
 	if err = u.user.Manager(u.context).GetByID(u.user, id); err != nil {
 		return
 	}
 
 	// get auth user to check permissions
-	usermanager := models.NewUserManager(u.context)
 	u.authuser = usermanager.NewUser()
-	if err = usermanager.GetAuthUser(u.authuser, r); err != nil {
-		response.New(http.StatusUnauthorized).Write(rw, r)
+	if err = u.GetAuthUser(u.authuser, w, r); err != nil {
 		return
 	}
 
 	// check permissions
 	if !u.authuser.IsSuperuser {
 		if u.authuser.ID != u.user.ID {
-			response.New(http.StatusForbidden).Write(rw, r)
+			response.New(http.StatusForbidden).Write(w, r)
 			return fmt.Errorf("forbidden")
 		}
 	}

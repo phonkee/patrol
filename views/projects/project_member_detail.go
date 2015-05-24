@@ -14,7 +14,7 @@ import (
 /*
 	Rest endpoint for project members list
 */
-type ProjectMemebersListAPIView struct {
+type ProjectMemeberDetailAPIView struct {
 	core.JSONView
 
 	context *context.Context
@@ -30,7 +30,7 @@ type ProjectMemebersListAPIView struct {
 	memtype models.MemberType
 }
 
-func (p *ProjectMemebersListAPIView) Before(w http.ResponseWriter, r *http.Request) (err error) {
+func (p *ProjectMemeberDetailAPIView) Before(w http.ResponseWriter, r *http.Request) (err error) {
 	p.context = p.Context(r)
 
 	// GetProject writes response so we only need to return error
@@ -57,7 +57,7 @@ func (p *ProjectMemebersListAPIView) Before(w http.ResponseWriter, r *http.Reque
 /*
 Retrieve list of user
 */
-func (p *ProjectMemebersListAPIView) GET(w http.ResponseWriter, r *http.Request) {
+func (p *ProjectMemeberDetailAPIView) GET(w http.ResponseWriter, r *http.Request) {
 	response.New(http.StatusOK).Write(w, r)
 	return
 }
@@ -65,13 +65,13 @@ func (p *ProjectMemebersListAPIView) GET(w http.ResponseWriter, r *http.Request)
 /*
 	Returns metadata
 */
-func (p *ProjectMemebersListAPIView) OPTIONS(w http.ResponseWriter, r *http.Request) {
+func (p *ProjectMemeberDetailAPIView) OPTIONS(w http.ResponseWriter, r *http.Request) {
 
 }
 
 /*
 Add member to team
 */
-func (p *ProjectMemebersListAPIView) POST(w http.ResponseWriter, r *http.Request) {
+func (p *ProjectMemeberDetailAPIView) POST(w http.ResponseWriter, r *http.Request) {
 
 }

@@ -11,6 +11,7 @@ import (
 	"github.com/phonkee/patrol/rest/response"
 	"github.com/phonkee/patrol/settings"
 	"github.com/phonkee/patrol/types"
+	"github.com/phonkee/patrol/views/mixins"
 )
 
 /*
@@ -20,16 +21,30 @@ List of projects rest api endpoint
 type ProjectListAPIView struct {
 	core.JSONView
 
+	// mixins used
+	mixins.AuthUserMixin
+
 	context *context.Context
+
+	user *models.User
 }
 
 func (p *ProjectListAPIView) Before(w http.ResponseWriter, r *http.Request) (err error) {
 	p.context = p.Context(r)
+
+	// get authenticated user
+	p.user = models.NewUser()
+	if err = p.GetAuthUser(p.user, w, r); err != nil {
+		return
+	}
+
 	return
 }
 
 /*
 Retrieve list of projects
+
+@TODO: handle superuser and all other users
 */
 func (p *ProjectListAPIView) GET(w http.ResponseWriter, r *http.Request) {
 	manager := models.NewProjectManager(p.context)
@@ -56,15 +71,6 @@ func (p *ProjectListAPIView) POST(w http.ResponseWriter, r *http.Request) {
 
 	var err error
 
-	// get auth user to check permissions
-	usermanager := models.NewUserManager(p.context)
-	user := usermanager.NewUser()
-	if err = usermanager.GetAuthUser(user, r); err != nil {
-		// this should not happened
-		response.New(http.StatusUnauthorized).Write(w, r)
-		return
-	}
-
 	// unmarshal posted data
 	serializer := ProjectCreateSerializer{}
 
@@ -89,8 +95,8 @@ func (p *ProjectListAPIView) POST(w http.ResponseWriter, r *http.Request) {
 	tmm := models.NewTeamMemberManager(p.context)
 	var mt models.MemberType
 	// not superuser so we have to check member type for permissions
-	if !user.IsSuperuser {
-		if mt, err = tmm.MemberType(team, user); err != nil || mt != models.MEMBER_TYPE_ADMIN {
+	if !p.user.IsSuperuser {
+		if mt, err = tmm.MemberType(team, p.user); err != nil || mt != models.MEMBER_TYPE_ADMIN {
 			response.New(http.StatusForbidden).Write(w, r)
 			return
 		}
@@ -115,8 +121,8 @@ func (p *ProjectListAPIView) POST(w http.ResponseWriter, r *http.Request) {
 
 	// create new project key
 	pk := models.NewProjectKey(func(projectKey *models.ProjectKey) {
-		projectKey.UserID = types.ForeignKey(user.ID)
-		projectKey.UserAddedID = types.ForeignKey(user.ID)
+		projectKey.UserID = types.ForeignKey(p.user.ID)
+		projectKey.UserAddedID = types.ForeignKey(p.user.ID)
 		projectKey.ProjectID = project.ID.ToForeignKey()
 	})
 

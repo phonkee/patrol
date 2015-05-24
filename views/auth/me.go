@@ -6,6 +6,7 @@ import (
 	"github.com/phonkee/patrol/core"
 	"github.com/phonkee/patrol/models"
 	"github.com/phonkee/patrol/rest/response"
+	"github.com/phonkee/patrol/views/mixins"
 )
 
 /*
@@ -15,22 +16,14 @@ returns information about user by jwt
 
 type AuthMeAPIView struct {
 	core.JSONView
+	mixins.AuthUserMixin
 }
 
 func (a *AuthMeAPIView) GET(w http.ResponseWriter, r *http.Request) {
 	var err error
 
-	context := a.Context(r)
-
-	um := models.NewUserManager(context)
-	user := um.NewUser()
-	if err = um.GetAuthUser(user, r); err != nil {
-		switch err {
-		case models.ErrObjectDoesNotExists:
-			response.New(http.StatusNotFound).Write(w, r)
-			return
-		}
-		response.New(http.StatusInternalServerError).Error(err).Write(w, r)
+	user := models.NewUser()
+	if err = a.GetAuthUser(user, w, r); err != nil {
 		return
 	}
 

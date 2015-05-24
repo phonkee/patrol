@@ -1,7 +1,6 @@
 package auth
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/phonkee/patrol/context"
@@ -9,6 +8,8 @@ import (
 	"github.com/phonkee/patrol/models"
 	"github.com/phonkee/patrol/rest/metadata"
 	"github.com/phonkee/patrol/rest/response"
+	"github.com/phonkee/patrol/views"
+	"github.com/phonkee/patrol/views/mixins"
 )
 
 /*
@@ -26,6 +27,8 @@ User list view
 type UserListAPIView struct {
 	core.JSONView
 
+	mixins.AuthUserMixin
+
 	// store context
 	context *context.Context
 
@@ -35,15 +38,15 @@ type UserListAPIView struct {
 // Before every method
 func (u *UserListAPIView) Before(w http.ResponseWriter, r *http.Request) (err error) {
 	u.context = u.Context(r)
-
 	u.user = models.NewUser()
-	if err = u.user.Manager(u.context).GetAuthUser(u.user, r); err != nil {
+
+	if err = u.GetAuthUser(u.user, w, r); err != nil {
 		return
 	}
 
 	if !u.user.IsSuperuser {
 		response.New(http.StatusForbidden).Write(w, r)
-		return fmt.Errorf("forbidden")
+		return views.ErrForbidden
 	}
 
 	return
