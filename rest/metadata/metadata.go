@@ -5,12 +5,26 @@ package metadata
 
 import "encoding/json"
 
+const (
+	ActionCreate   = "POST"
+	ActionUpdate   = "PUT"
+	ActionRetrieve = "GET"
+	ActionDelete   = "DELETE"
+)
+
 // creates new metadata
 func New(name string) *Metadata {
 	md := &Metadata{
 		Actions: map[string]Action{},
 	}
 	return md.SetName(name)
+}
+
+// Returns metadata from []byte
+func FromBytes(body []byte) (metadata *Metadata, err error) {
+	metadata = &Metadata{}
+	err = json.Unmarshal(body, metadata)
+	return
 }
 
 type Metadata struct {
@@ -35,19 +49,19 @@ func (m *Metadata) Action(method string) (action Action) {
 
 // Aliases for common actions
 func (m *Metadata) ActionCreate() Action {
-	return m.Action("POST")
+	return m.Action(ActionCreate)
 }
 
 func (m *Metadata) ActionUpdate() Action {
-	return m.Action("PUT")
+	return m.Action(ActionUpdate)
 }
 
 func (m *Metadata) ActionRetrieve() Action {
-	return m.Action("GET")
+	return m.Action(ActionRetrieve)
 }
 
 func (m *Metadata) ActionDelete() Action {
-	return m.Action("DELETE")
+	return m.Action(ActionDelete)
 }
 
 // sets description and returns metadata for chaining calls

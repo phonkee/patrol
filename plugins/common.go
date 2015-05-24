@@ -35,7 +35,7 @@ func (p *CommonPlugin) Commands() []core.Commander {
 // list of urls
 func (c *CommonPlugin) URLViews() []*core.URLView {
 	return []*core.URLView{
-		core.NewURLView("/api/version", func() core.Viewer { return &common.VersionAPIView{} }, settings.ROUTE_COMMON_VERSION),
-		core.NewURLView("/api/monitor", func() core.Viewer { return &common.MonitorAPIView{} }, settings.ROUTE_COMMON_MONITOR),
+		core.NewURLView("/api/version", func() core.Viewer { return &common.VersionAPIView{} }).Name(settings.ROUTE_COMMON_VERSION),
+		core.NewURLView("/api/monitor", func() core.Viewer { return &common.MonitorAPIView{} }).Name(settings.ROUTE_COMMON_MONITOR),
 	}
 }

@@ -57,8 +57,7 @@ func (r *RealtimePlugin) URLViews() []*core.URLView {
 			func() core.Viewer {
 				return realtime.NewWebsocketAPIView(r.getSubscribeQueues)
 			},
-			ROUTE_REALTIME,
-		),
+		).Name(ROUTE_REALTIME),
 	}
 }
 

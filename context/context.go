@@ -25,6 +25,7 @@ const (
 var (
 	ErrContextNotFound       = errors.New("context_not_found")
 	ErrTransactionNotStarted = errors.New("transaction not started")
+	ErrNilBody               = errors.New("nil body")
 
 	mutex sync.RWMutex
 	data  = make(map[*http.Request]*Context)
@@ -223,6 +224,9 @@ func (c *Context) Rollback() (err error) {
 
 // bind request data to structure
 func (c *Context) Bind(target interface{}) (err error) {
+	if c.Request.Body == nil {
+		return ErrNilBody
+	}
 	decoder := json.NewDecoder(c.Request.Body)
 	return decoder.Decode(target)
 }

@@ -1,5 +1,10 @@
 #!/bin/bash
-export PGHOST="postgres://patrol:patrol@localhost/patrol"
-export CACHEDSN="redis://127.0.0.1:6379/1"
-export QUEUEDSN="redis://127.0.0.1:6379/2"
-$GOPATH/bin/goconvey -depth=1
+export TESTING=TRUE
+export DB_DSN=postgres://patrol:patrol@localhost/patrol
+export ERGOQ_DSN=redis://localhost:6379
+export CACHER_DSN=redis://localhost:6379/1?prefix=patrol
+export SECRET_KEY=6nD98ZbRHR4MPFCtEj85ZliUNakJkvUZQY5TLUWstlzg7ALH1u7zTcl4IVQYOmpL
+DIR=${1-.}
+cd $DIR
+
+goconvey -packages=1 -depth=3

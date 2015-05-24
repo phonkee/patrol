@@ -320,11 +320,11 @@ func (u *UserManager) Login(user *User) (t string, err error) {
 }
 
 func (u *UserManager) QueryFilterEmail(email string) utils.QueryFunc {
-	return utils.QueryFilterWhere("email = ?", email)
+	return utils.QueryFilterWhere("email ILIKE ?", email)
 }
 
 func (u *UserManager) QueryFilterUsername(username string) utils.QueryFunc {
-	return utils.QueryFilterWhere("username = ?", username)
+	return utils.QueryFilterWhere("username ILIKE ?", username)
 }
 
 func (u *UserManager) QueryFilterIsActive() utils.QueryFunc {

@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
-	"github.com/jmoiron/sqlx"
 	sq "github.com/lann/squirrel"
 	"github.com/phonkee/patrol/context"
 	"github.com/phonkee/patrol/rest/validator"
@@ -139,12 +138,18 @@ type ProjectManager struct {
 /*
 	Constructor for project manager
 */
-func NewProjectManager(context *context.Context, tx ...*sqlx.Tx) *ProjectManager {
+func NewProjectManager(context *context.Context) *ProjectManager {
 	return &ProjectManager{context: context}
 }
 
 /*
-	Returns blank new Project
+NewProject Returns blank new Project
+parameter could be a function that alters returned project
+e.g.:
+
+	project := NewProject(func(p *Project) {
+		p.Name = "new project"
+	})
 */
 func NewProject(funcs ...func(*Project)) (project *Project) {
 	project = &Project{
@@ -157,17 +162,24 @@ func NewProject(funcs ...func(*Project)) (project *Project) {
 }
 
 /*
-	Returns blank new Project
+	NewProject Returns blank new Project as from func NewProject
 */
 func (p *ProjectManager) NewProject(funcs ...func(*Project)) (project *Project) {
 	return NewProject(funcs...)
 }
 
+// NewProjectList returns blank project list
 func (p *ProjectManager) NewProjectList() []*Project {
 	return []*Project{}
 }
 
-// select without paging
+/* Filter selects data from project database
+
+argumemt target is where results from database will be scanned.
+Queryfunc can be function that will alter query
+
+
+*/
 func (p *ProjectManager) Filter(target interface{}, qfs ...utils.QueryFunc) error {
 	_, safe := target.([]*Project)
 	return DBFilter(p.context, PROJECTS_PROJECT_DB_TABLE+".*", PROJECTS_PROJECT_DB_TABLE, !safe, target, qfs...)

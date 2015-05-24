@@ -146,8 +146,7 @@ func (e *EventParserRegistry) URLViews(context *context.Context) (result []*core
 		core.NewURLView(
 			"/api/parser/{parser:[0-9]+}/interface/{interface:[0-9a-zA-Z]+}/template",
 			func() core.Viewer { return NewParserInterfaceTemplateView(context) },
-			"api-parser-templates",
-		),
+		).Name("api-parser-templates"),
 	}
 	return
 }

@@ -29,38 +29,51 @@ func (p *ProjectsPlugin) URLViews() []*core.URLView {
 		middlewares.AuthTokenValidMiddleware(),
 	}
 	return []*core.URLView{
-		core.NewURLView("/api/projects/project/",
-			func() core.Viewer {
-				return &projects.ProjectListAPIView{}
-			},
-			settings.ROUTE_PROJECTS_PROJECT_LIST,
-		).Middlewares(mids...),
+		core.NewURLView(
+			"/api/projects/project/", func() core.Viewer { return &projects.ProjectListAPIView{} },
+		).Name(settings.ROUTE_PROJECTS_PROJECT_LIST).Middlewares(mids...),
+
 		core.NewURLView("/api/projects/project/{project_id:[0-9]+}",
 			func() core.Viewer {
 				return &projects.ProjectDetailAPIView{}
 			},
-			settings.ROUTE_PROJECTS_PROJECT_DETAIL,
-		).Middlewares(mids...),
+		).Name(settings.ROUTE_PROJECTS_PROJECT_DETAIL).Middlewares(mids...),
+
 		core.NewURLView("/api/projects/project/{project_id:[0-9]+}/eventgroup",
 			func() core.Viewer {
 				return &projects.ProjectDetailEventGroupListAPIView{}
 			},
-			settings.ROUTE_PROJECTS_PROJECT_DETAIL_EVENTGROUP_LIST,
-		).Middlewares(mids...),
+		).Name(settings.ROUTE_PROJECTS_PROJECT_DETAIL_EVENTGROUP_LIST).Middlewares(mids...),
+
+		core.NewURLView("/api/projects/project/{project_id:[0-9]+}/eventgroup/{eventgroup_id:[0-9]+}",
+			func() core.Viewer {
+				return &projects.ProjectDetailEventGroupDetailAPIView{}
+			},
+		).Name(settings.ROUTE_PROJECTS_PROJECT_DETAIL_EVENTGROUP_DETAIL).Middlewares(mids...),
+
+		core.NewURLView("/api/projects/project/{project_id:[0-9]+}/eventgroup/{eventgroup_id:[0-9]+}/resolve",
+			func() core.Viewer {
+				return &projects.ProjectDetailEventGroupResolveAPIView{}
+			},
+		).Name(settings.ROUTE_PROJECTS_PROJECT_DETAIL_EVENTGROUP_RESOLVE).Middlewares(mids...),
 
 		core.NewURLView("/api/projects/project/{project_id:[0-9]+}/key",
 			func() core.Viewer {
 				return &projects.ProjectKeyListAPIView{}
 			},
-			settings.ROUTE_PROJECTS_PROJECTKEY_LIST,
-		).Middlewares(mids...),
+		).Name(settings.ROUTE_PROJECTS_PROJECTKEY_LIST).Middlewares(mids...),
 
 		core.NewURLView("/api/projects/project/{project_id:[0-9]+}/key/{projectkey_id:[0-9]+}",
 			func() core.Viewer {
 				return &projects.ProjectKeyDetailAPIView{}
 			},
-			settings.ROUTE_PROJECTS_PROJECTKEY_DETAIL,
-		).Middlewares(mids...),
+		).Name(settings.ROUTE_PROJECTS_PROJECTKEY_DETAIL).Middlewares(mids...),
+
+		core.NewURLView("/api/projects/project/{project_id:[0-9]+}/eventgroup/{eventgroup_id:[0-9]+}/event/",
+			func() core.Viewer {
+				return &projects.ProjectDetailEventGroupListAPIView{}
+			},
+		).Name(settings.ROUTE_PROJECTS_PROJECT_DETAIL_EVENTGROUP_EVENT_LIST).Middlewares(mids...),
 	}
 }
 func (p *ProjectsPlugin) Migrations() []core.Migrationer {

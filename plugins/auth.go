@@ -46,22 +46,31 @@ func (a *AuthPlugin) URLViews() []*core.URLView {
 					LoginSignal: a.SendSuccessfulLoginSignal,
 				}
 			},
-			settings.ROUTE_AUTH_LOGIN,
-		),
+		).Name(settings.ROUTE_AUTH_LOGIN),
 
 		core.NewURLView(
 			"/api/auth/me", func() core.Viewer {
 				return &auth.AuthMeAPIView{}
 			},
-			settings.ROUTE_AUTH_ME,
-		).Middlewares(middlewares.AuthTokenValidMiddleware()),
+		).Name(settings.ROUTE_AUTH_ME).Middlewares(middlewares.AuthTokenValidMiddleware()),
 
 		core.NewURLView(
 			"/api/auth/user/", func() core.Viewer {
 				return auth.NewUserListAPIView()
 			},
-			settings.ROUTE_AUTH_USER_LIST,
-		).Middlewares(middlewares.AuthTokenValidMiddleware()),
+		).Name(settings.ROUTE_AUTH_USER_LIST).Middlewares(middlewares.AuthTokenValidMiddleware()),
+
+		core.NewURLView(
+			"/api/auth/user/{user_id:[0-9]+}", func() core.Viewer {
+				return &auth.UserDetailAPIView{}
+			},
+		).Name(settings.ROUTE_AUTH_USER_DETAIL).Middlewares(middlewares.AuthTokenValidMiddleware()),
+
+		core.NewURLView(
+			"/api/auth/user/{user_id:[0-9]+}/password", func() core.Viewer {
+				return &auth.UserChangePasswordAPIView{}
+			},
+		).Name(settings.ROUTE_AUTH_USER_CHANGE_PASSWORD).Middlewares(middlewares.AuthTokenValidMiddleware()),
 	}
 	return urls
 }

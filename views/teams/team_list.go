@@ -10,10 +10,6 @@ import (
 	"github.com/phonkee/patrol/rest/validator"
 )
 
-type TeamCreateSerializer struct {
-	Name string `json:"name"`
-}
-
 /*
 TeamListAPIView
 

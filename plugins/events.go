@@ -70,7 +70,7 @@ func (e *EventsPlugin) URLViews() []*core.URLView {
 		return &events.StoreEventAPIView{}
 	}
 	result := []*core.URLView{
-		core.NewURLView("/api/{project_id:[0-9]+}/store/", sev, settings.ROUTE_EVENTS_EVENT_STORE),
+		core.NewURLView("/api/{project_id:[0-9]+}/store/", sev).Name(settings.ROUTE_EVENTS_EVENT_STORE),
 	}
 
 	// add parser registry views (templates...)

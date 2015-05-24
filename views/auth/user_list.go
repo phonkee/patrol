@@ -1,90 +1,15 @@
 package auth
 
 import (
-	"errors"
+	"fmt"
 	"net/http"
-	"strings"
-	"time"
 
 	"github.com/phonkee/patrol/context"
 	"github.com/phonkee/patrol/core"
 	"github.com/phonkee/patrol/models"
 	"github.com/phonkee/patrol/rest/metadata"
 	"github.com/phonkee/patrol/rest/response"
-	"github.com/phonkee/patrol/rest/validator"
-	"github.com/phonkee/patrol/types"
-	"github.com/phonkee/patrol/utils"
 )
-
-/*
-User list item serializer
-*/
-type UserListItemSerializer struct {
-	ID          types.PrimaryKey `db:"id" json:"id"`
-	Username    string           `db:"username" json:"username"`
-	Email       string           `db:"email" json:"email"`
-	Name        string           `db:"name" json:"name"`
-	IsActive    bool             `db:"is_active" json:"is_active"`
-	IsSuperuser bool             `db:"is_superuser" json:"is_superuser"`
-	DateAdded   time.Time        `db:"date_added" json:"date_added"`
-	LastLogin   time.Time        `db:"last_login" json:"last_login"`
-}
-
-/*
-User create serializer
-*/
-type UserCreateSerializer struct {
-	Username       string `json:"username" validator:"username"`
-	Email          string `json:"email" validator:"email"`
-	Name           string `json:"name" validator:"name"`
-	IsActive       bool   `json:"is_active"`
-	IsSuperuser    bool   `json:"is_superuser"`
-	Password       string `json:"password" validator:"password"`
-	PasswordRetype string `json:"password_retype" validator:"password"`
-}
-
-/*
-Cleans values (trims spaces)
-*/
-func (u *UserCreateSerializer) Clean() {
-	u.Username = strings.TrimSpace(u.Username)
-	u.Email = strings.TrimSpace(u.Email)
-	u.Name = strings.TrimSpace(u.Name)
-	u.Password = strings.TrimSpace(u.Password)
-	u.PasswordRetype = strings.TrimSpace(u.PasswordRetype)
-}
-
-/*
-Validates create serializer
-*/
-func (u *UserCreateSerializer) Validate(context *context.Context) *validator.Result {
-	v := validator.New()
-	v["name"] = models.ValidateUserName()
-	v["email"] = validator.ValidateEmail()
-	v["username"] = models.ValidateUserUsername()
-	v["password"] = models.ValidatePassword()
-	result := v.Validate(u)
-
-	if u.Password != u.PasswordRetype {
-		result.AddFieldError("password_retype", errors.New("passwords_dont_match"))
-	}
-
-	um := models.NewUserManager(context)
-	// check duplicate username
-	if !result.HasFieldErrors("username") {
-		if err := um.Get(um.NewUser(), utils.QueryFilterWhere("username = ?", u.Username)); err == nil {
-			result.AddFieldError("username", errors.New("already_exists"))
-		}
-	}
-
-	// check duplicaate email
-	if !result.HasFieldErrors("email") {
-		if err := um.Get(um.NewUser(), utils.QueryFilterWhere("email = ?", u.Email)); err == nil {
-			result.AddFieldError("email", errors.New("already_exists"))
-		}
-	}
-	return result
-}
 
 /*
 Constructor that returns New UserListAPIView
@@ -114,6 +39,11 @@ func (u *UserListAPIView) Before(w http.ResponseWriter, r *http.Request) (err er
 	u.user = models.NewUser()
 	if err = u.user.Manager(u.context).GetAuthUser(u.user, r); err != nil {
 		return
+	}
+
+	if !u.user.IsSuperuser {
+		response.New(http.StatusForbidden).Write(w, r)
+		return fmt.Errorf("forbidden")
 	}
 
 	return

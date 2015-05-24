@@ -30,15 +30,14 @@ func (t *TeamsPlugin) URLViews() []*core.URLView {
 		core.NewURLView("/api/teams/team/",
 			func() core.Viewer {
 				return &teams.TeamListAPIView{}
-			}, settings.ROUTE_TEAMS_TEAM_LIST,
-		).Middlewares(mids...),
+			},
+		).Name(settings.ROUTE_TEAMS_TEAM_LIST).Middlewares(mids...),
 
 		core.NewURLView("/api/teams/team/{team_id:[0-9]+}",
 			func() core.Viewer {
 				return &teams.TeamDetailAPIView{}
 			},
-			settings.ROUTE_TEAMS_TEAM_DETAIL,
-		).Middlewares(mids...),
+		).Name(settings.ROUTE_TEAMS_TEAM_DETAIL).Middlewares(mids...),
 	}
 }
 

@@ -146,9 +146,9 @@ func (e *EventManager) Get(target interface{}, qfs ...utils.QueryFunc) (err erro
 }
 
 // returns by id )and possibly other queryFuncs
-func (e *EventManager) GetByID(target interface{}, id int, qfs ...utils.QueryFunc) (err error) {
+func (e *EventManager) GetByID(target interface{}, id types.Keyer, qfs ...utils.QueryFunc) (err error) {
 	// add by id
-	qfs = append(qfs, e.QueryFilterWhere("id = ?", id))
+	qfs = append(qfs, e.QueryFilterWhere("id = ?", id.Int64()))
 	return e.Get(target, qfs...)
 }
 

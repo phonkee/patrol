@@ -11,6 +11,7 @@ import (
 
 	"github.com/phonkee/patrol/context"
 	"github.com/phonkee/patrol/rest/response"
+	"github.com/phonkee/patrol/types"
 
 	"github.com/golang/glog"
 	"github.com/gorilla/mux"
@@ -25,10 +26,10 @@ var (
 	// @TODO: move this to settings
 	flagCorsOrigin = flag.String("cors_allowed_origin", "*", "Cors allowed origin (Access-Control-Allow-Origin header).")
 
-	ErrBreakRequest  = errors.New("")
-	ErrParamNotFound = errors.New("param not found")
-
+	ErrBreakRequest   = errors.New("")
+	ErrParamNotFound  = errors.New("param not found")
 	ErrMethodNotFound = errors.New("method not found")
+	ErrMuxVarNotFound = errors.New("mux var not found")
 
 	// mapping of methods
 	methods = map[string]func(Viewer) (http.HandlerFunc, error){
@@ -164,16 +165,24 @@ type URLView struct {
 	middlewares []alice.Constructor
 }
 
-func NewURLView(url string, vff ViewerFactoryFunc, name string, middlewares ...alice.Constructor) *URLView {
-	return &URLView{factory: vff, url: url, name: name, middlewares: middlewares}
+func NewURLView(url string, vff ViewerFactoryFunc) *URLView {
+	return &URLView{factory: vff, url: url}
 }
 
-func (u *URLView) Name() string { return u.name }
-func (u *URLView) URL() string  { return u.url }
+func (u *URLView) Name(name string) *URLView {
+	u.name = name
+	return u
+}
+func (u *URLView) URL() string { return u.url }
 func (u *URLView) Middlewares(middlewares ...alice.Constructor) *URLView {
 	u.middlewares = middlewares
 	return u
 }
+
+func (u *URLView) GetName() string {
+	return u.name
+}
+
 func (u *URLView) Methods() (result []string) {
 	view := u.factory()
 	result = []string{}
@@ -221,7 +230,7 @@ func (u *URLView) Register(router *mux.Router, chain alice.Chain) (err error) {
 		// run view.Before
 		if err := curView.Before(w, r); err != nil {
 			if err != ErrBreakRequest {
-				glog.Error(err)
+				// glog.Error(err)
 			}
 			return
 		}
@@ -290,6 +299,33 @@ Returns chain of middlewares for all handlers that view supports
 */
 func (g GenericView) Middlewares() []alice.Constructor {
 	return []alice.Constructor{}
+}
+
+/*
+returns mux variable as int64
+*/
+func (g *GenericView) GetMuxVarInt64(r *http.Request, name string) (value int64, err error) {
+	vars := mux.Vars(r)
+	stringvar, ok := vars[name]
+	if !ok {
+		return value, ErrMuxVarNotFound
+	}
+
+	if value, err = strconv.ParseInt(stringvar, 10, 0); err != nil {
+		return
+	}
+
+	return
+}
+
+func (g *GenericView) GetMuxVarForeignKey(r *http.Request, name string) (value *types.ForeignKey, err error) {
+	var intvar int64
+
+	if intvar, err = g.GetMuxVarInt64(r, name); err != nil {
+		return
+	}
+	fk := types.ForeignKey(intvar)
+	return &fk, nil
 }
 
 /*JSONView

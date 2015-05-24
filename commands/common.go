@@ -204,9 +204,16 @@ func (c *CommonListRoutesCommand) Run() error {
 	fmt.Printf("List of registered routes:\n\n")
 	c.pr.Do(func(plugin core.Pluginer) error {
 		fmt.Println(sectioncolor("[" + plugin.ID() + "]"))
+
 		for _, uv := range plugin.URLViews() {
-			colorized := itemcolor(uv.URL())
-			fmt.Printf("    %s %s:%s\n", utils.StringPadRight(colorized, " ", settings.LIST_ROUTES_COMMAND_PADDING), plugin.ID(), uv.Name())
+			url := utils.StringPadRight(fmt.Sprintf("    %s", uv.URL()), " ", settings.LIST_ROUTES_COMMAND_PADDING)
+			colorized := itemcolor(url)
+			if len(url) > settings.LIST_ROUTES_COMMAND_PADDING {
+				colorized = colorized + "\n" + strings.Repeat(" ", settings.LIST_ROUTES_COMMAND_PADDING)
+			} else {
+				colorized = utils.StringPadRight(colorized, " ", settings.LIST_ROUTES_COMMAND_PADDING)
+			}
+			fmt.Printf("%s %s:%s\n", colorized, plugin.ID(), uv.GetName())
 		}
 		fmt.Println()
 		return nil

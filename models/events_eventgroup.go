@@ -1,6 +1,7 @@
 package models
 
 import (
+	"errors"
 	"strconv"
 	"time"
 
@@ -11,6 +12,10 @@ import (
 	"github.com/phonkee/patrol/settings"
 	"github.com/phonkee/patrol/types"
 	"github.com/phonkee/patrol/utils"
+)
+
+var (
+	ErrEventGroupAlreadyResolved = errors.New("eventgroup_already_resolved")
 )
 
 type EventGroup struct {
@@ -187,16 +192,16 @@ func (e *EventGroupManager) Get(target interface{}, qfs ...utils.QueryFunc) (err
 }
 
 // returns by id )and possibly other queryFuncs
-func (e *EventGroupManager) GetByID(target interface{}, id int64, qfs ...utils.QueryFunc) (err error) {
+func (e *EventGroupManager) GetByID(target interface{}, id types.PrimaryKey, qfs ...utils.QueryFunc) (err error) {
 	handleNilPointer(target)
 
-	cacheKey := e.NewEventGroup(func(eg *EventGroup) { eg.SetPrimaryKey(types.PrimaryKey(id)) }).String()
+	cacheKey := e.NewEventGroup(func(eg *EventGroup) { eg.SetPrimaryKey(id) }).String()
 
 	if err = GetCached(e.context, cacheKey, target); err == nil {
 		return
 	}
 
-	qfs = append(qfs, e.QueryFilterWhere("id = ?", id))
+	qfs = append(qfs, e.QueryFilterWhere("id = ?", id.Int64()))
 	if err = e.Get(target, qfs...); err != nil {
 		return
 	}
@@ -252,6 +257,7 @@ func (e *EventGroupManager) IncrementCounters(eventgroup *EventGroup) (err error
 	builder := utils.QueryBuilder().
 		Update(eventgroup.Table()).
 		Set("times_seen", squirrel.Expr("times_seen + 1")).
+		Set("last_seen", eventgroup.LastSeen).
 		Suffix("RETURNING times_seen")
 
 	query, args, err := builder.ToSql()
@@ -265,5 +271,19 @@ func (e *EventGroupManager) IncrementCounters(eventgroup *EventGroup) (err error
 		return
 	}
 
+	return
+}
+
+/*
+	Resolves given eventgroup
+	@TODO: send notification
+*/
+func (e *EventGroupManager) Resolve(eventgroup *EventGroup, user *User) (err error) {
+	if eventgroup.Status == EVENT_GROUP_STATUS_RESOLVED {
+		return ErrEventGroupAlreadyResolved
+	}
+	eventgroup.Status = EVENT_GROUP_STATUS_RESOLVED
+	eventgroup.ResolvedAt = utils.NowTruncated()
+	_, err = eventgroup.Update(e.context)
 	return
 }
