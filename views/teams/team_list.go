@@ -4,10 +4,10 @@ import (
 	"net/http"
 
 	"github.com/phonkee/patrol/context"
-	"github.com/phonkee/patrol/core"
 	"github.com/phonkee/patrol/models"
 	"github.com/phonkee/patrol/rest/metadata"
 	"github.com/phonkee/patrol/rest/response"
+	"github.com/phonkee/patrol/rest/views"
 	"github.com/phonkee/patrol/serializers"
 	"github.com/phonkee/patrol/views/mixins"
 )
@@ -21,7 +21,7 @@ Provides following methods
 	Create - POST - creates team
 */
 type TeamListAPIView struct {
-	core.JSONView
+	views.APIView
 
 	// mixins
 	mixins.AuthUserMixin
@@ -44,7 +44,7 @@ func (t *TeamListAPIView) Before(w http.ResponseWriter, r *http.Request) (err er
 	case "POST":
 		if !t.user.IsSuperuser {
 			response.New(http.StatusForbidden).Write(w, r)
-			return core.ErrBreakRequest
+			return views.ErrBreakRequest
 		}
 	}
 

@@ -6,10 +6,11 @@ import (
 	"github.com/phonkee/patrol/core"
 	"github.com/phonkee/patrol/models"
 	"github.com/phonkee/patrol/rest/response"
+	"github.com/phonkee/patrol/rest/views"
 )
 
 type TeamDetailAPIView struct {
-	core.JSONView
+	views.APIView
 
 	// store team instance in Before method
 	team *models.Team

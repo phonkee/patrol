@@ -6,6 +6,7 @@ import (
 	"github.com/phonkee/patrol/core"
 	"github.com/phonkee/patrol/middlewares"
 	"github.com/phonkee/patrol/models"
+	"github.com/phonkee/patrol/rest/views"
 	"github.com/phonkee/patrol/settings"
 	"github.com/phonkee/patrol/views/teams"
 )
@@ -20,31 +21,31 @@ type TeamsPlugin struct {
 }
 
 func (t *TeamsPlugin) ID() string { return settings.TEAMS_PLUGIN_ID }
-func (t *TeamsPlugin) URLViews() []*core.URLView {
+func (t *TeamsPlugin) URLs() []*views.URL {
 
 	mids := []alice.Constructor{
 		middlewares.AuthTokenValidMiddleware(),
 	}
-	return []*core.URLView{
+	return []*views.URL{
 
-		core.NewURLView("/api/teams/team/",
-			func() core.Viewer {
+		views.NewURL("/api/teams/team/",
+			func() views.Viewer {
 				return &teams.TeamListAPIView{}
 			},
 		).Name(settings.ROUTE_TEAMS_TEAM_LIST).Middlewares(mids...),
 
-		core.NewURLView("/api/teams/team/{team_id:[0-9]+}",
-			func() core.Viewer {
+		views.NewURL("/api/teams/team/{team_id:[0-9]+}",
+			func() views.Viewer {
 				return &teams.TeamDetailAPIView{}
 			},
 		).Name(settings.ROUTE_TEAMS_TEAM_DETAIL).Middlewares(mids...),
 
-		core.NewURLView(
+		views.NewURL(
 			"/api/teams/team/{team_id:[0-9]+}/member/",
 			teams.NewTeamMemberListAPIView,
 		).Name(settings.ROUTE_TEAMS_TEAMMEMBER_LIST).Middlewares(mids...),
 
-		core.NewURLView(
+		views.NewURL(
 			"/api/teams/team/{team_id:[0-9]+}/member/{teammember_id:[0-9]+}",
 			teams.NewTeamMemberDetailAPIView,
 		).Name(settings.ROUTE_TEAMS_TEAMMEMBER_DETAIL).Middlewares(mids...),

@@ -5,10 +5,10 @@ import (
 
 	"github.com/golang/glog"
 	"github.com/phonkee/patrol/context"
-	"github.com/phonkee/patrol/core"
 	"github.com/phonkee/patrol/models"
 	"github.com/phonkee/patrol/rest/metadata"
 	"github.com/phonkee/patrol/rest/response"
+	"github.com/phonkee/patrol/rest/views"
 	"github.com/phonkee/patrol/serializers"
 	"github.com/phonkee/patrol/settings"
 	"github.com/phonkee/patrol/views/mixins"
@@ -19,7 +19,7 @@ ProjectListAPIView
 List of projects rest api endpoint
 */
 type ProjectListAPIView struct {
-	core.JSONView
+	views.APIView
 
 	// mixins used
 	mixins.AuthUserMixin

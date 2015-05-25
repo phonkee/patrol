@@ -12,6 +12,7 @@ import (
 	"fmt"
 
 	"github.com/golang/glog"
+	"github.com/phonkee/patrol/rest/views"
 	"github.com/phonkee/patrol/utils"
 )
 
@@ -39,7 +40,7 @@ type Pluginer interface {
 	Commands() []Commander
 
 	// returns registered views
-	URLViews() []*URLView
+	URLs() []*views.URL
 
 	// returns migrations
 	Migrations() []Migrationer
@@ -61,7 +62,7 @@ type Plugin struct{}
 // Returns list of commands that plugin exposes to patrol cli
 func (p *Plugin) Commands() []Commander     { return []Commander{} }
 func (p *Plugin) Init() error               { return nil }
-func (p *Plugin) URLViews() []*URLView      { return []*URLView{} }
+func (p *Plugin) URLs() []*views.URL        { return []*views.URL{} }
 func (p *Plugin) Migrations() []Migrationer { return []Migrationer{} }
 
 /*

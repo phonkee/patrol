@@ -6,10 +6,10 @@ import (
 
 	"github.com/phonkee/patrol/context"
 	"github.com/phonkee/patrol/rest/response"
+	"github.com/phonkee/patrol/rest/views"
 
 	"github.com/golang/glog"
 	"github.com/gorilla/mux"
-	"github.com/phonkee/patrol/core"
 	"github.com/phonkee/patrol/models"
 	"github.com/phonkee/patrol/parser"
 	"github.com/phonkee/patrol/settings"
@@ -17,7 +17,7 @@ import (
 )
 
 type EventStoreAPIView struct {
-	core.JSONView
+	views.APIView
 
 	context *context.Context
 
@@ -55,7 +55,7 @@ func (s *EventStoreAPIView) Before(w http.ResponseWriter, r *http.Request) (err 
 	/*
 		if project.PrimaryKey().Int64() != pid {
 			response.Status(http.StatusNotFound).Write(w, r)
-			return core.ErrBreakRequest
+			return views.ErrBreakRequest
 		}
 	*/
 	_ = response

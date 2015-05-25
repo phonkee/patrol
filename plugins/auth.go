@@ -7,6 +7,7 @@ import (
 	"github.com/phonkee/patrol/core"
 	"github.com/phonkee/patrol/middlewares"
 	"github.com/phonkee/patrol/models"
+	"github.com/phonkee/patrol/rest/views"
 	"github.com/phonkee/patrol/settings"
 	"github.com/phonkee/patrol/signals"
 	"github.com/phonkee/patrol/views/auth"
@@ -38,36 +39,36 @@ func (a *AuthPlugin) Init() error {
 }
 
 // Return all auth views
-func (a *AuthPlugin) URLViews() []*core.URLView {
-	urls := []*core.URLView{
-		core.NewURLView(
-			"/api/auth/login", func() core.Viewer {
+func (a *AuthPlugin) URLs() []*views.URL {
+	urls := []*views.URL{
+		views.NewURL(
+			"/api/auth/login", func() views.Viewer {
 				return &auth.AuthLoginAPIView{
 					LoginSignal: a.SendSuccessfulLoginSignal,
 				}
 			},
 		).Name(settings.ROUTE_AUTH_LOGIN),
 
-		core.NewURLView(
-			"/api/auth/me", func() core.Viewer {
+		views.NewURL(
+			"/api/auth/me", func() views.Viewer {
 				return &auth.AuthMeAPIView{}
 			},
 		).Name(settings.ROUTE_AUTH_ME).Middlewares(middlewares.AuthTokenValidMiddleware()),
 
-		core.NewURLView(
-			"/api/auth/user/", func() core.Viewer {
+		views.NewURL(
+			"/api/auth/user/", func() views.Viewer {
 				return auth.NewUserListAPIView()
 			},
 		).Name(settings.ROUTE_AUTH_USER_LIST).Middlewares(middlewares.AuthTokenValidMiddleware()),
 
-		core.NewURLView(
-			"/api/auth/user/{user_id:[0-9]+}", func() core.Viewer {
+		views.NewURL(
+			"/api/auth/user/{user_id:[0-9]+}", func() views.Viewer {
 				return &auth.UserDetailAPIView{}
 			},
 		).Name(settings.ROUTE_AUTH_USER_DETAIL).Middlewares(middlewares.AuthTokenValidMiddleware()),
 
-		core.NewURLView(
-			"/api/auth/user/{user_id:[0-9]+}/password", func() core.Viewer {
+		views.NewURL(
+			"/api/auth/user/{user_id:[0-9]+}/password", func() views.Viewer {
 				return &auth.UserChangePasswordAPIView{}
 			},
 		).Name(settings.ROUTE_AUTH_USER_CHANGE_PASSWORD).Middlewares(middlewares.AuthTokenValidMiddleware()),

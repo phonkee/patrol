@@ -4,12 +4,11 @@ import (
 	"net/http"
 
 	"github.com/phonkee/patrol/context"
-	"github.com/phonkee/patrol/core"
 	"github.com/phonkee/patrol/models"
 	"github.com/phonkee/patrol/rest/metadata"
 	"github.com/phonkee/patrol/rest/response"
+	"github.com/phonkee/patrol/rest/views"
 	"github.com/phonkee/patrol/serializers"
-	"github.com/phonkee/patrol/views"
 	"github.com/phonkee/patrol/views/mixins"
 )
 
@@ -26,7 +25,7 @@ User list view
 	POST - create new user
 */
 type UserListAPIView struct {
-	core.JSONView
+	views.APIView
 
 	mixins.AuthUserMixin
 

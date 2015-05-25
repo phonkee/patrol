@@ -7,8 +7,8 @@ import (
 	"github.com/golang/glog"
 	"github.com/gorilla/websocket"
 	"github.com/phonkee/patrol/context"
-	"github.com/phonkee/patrol/core"
 	"github.com/phonkee/patrol/models"
+	"github.com/phonkee/patrol/rest/views"
 	"github.com/phonkee/patrol/views/mixins"
 )
 
@@ -26,7 +26,7 @@ func NewWebsocketAPIView(g func(*models.User, *http.Request) []string) *Websocke
 }
 
 type WebsocketAPIView struct {
-	core.JSONView
+	views.APIView
 	mixins.AuthUserMixin
 
 	context *context.Context

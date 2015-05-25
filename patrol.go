@@ -135,12 +135,12 @@ func Plugin(id string) (core.Pluginer, error) {
 }
 
 /*
-	Setups handlers for router from all URLViews
+	Setups handlers for router from all URLs
 */
 func setupHandlers() error {
 	return pluginRegistry.Do(func(plugin core.Pluginer) error {
-		for _, uv := range plugin.URLViews() {
-			if err := uv.Register(Context.Router, middlewares); err != nil {
+		for _, url := range plugin.URLs() {
+			if err := url.Register(Context.Router, middlewares); err != nil {
 				return err
 			}
 
@@ -151,7 +151,7 @@ func setupHandlers() error {
 
 /*
 	Sets up patrol application.
-	Registers all URLViews
+	Registers all URLs
 */
 func Setup() error {
 	if issetup {

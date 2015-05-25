@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/phonkee/patrol/rest/views"
 	. "github.com/smartystreets/goconvey/convey"
 )
 
@@ -31,7 +32,7 @@ func TestPlugin(t *testing.T) {
 		p := &ExamplePlugin{}
 		So(p.ID(), ShouldEqual, TEST_PLUGIN_ID)
 		So(p.Commands(), ShouldResemble, []Commander{})
-		So(p.URLViews(), ShouldResemble, []*URLView{})
+		So(p.URLs(), ShouldResemble, []*views.URL{})
 		So(p.Init(), ShouldBeNil)
 	})
 }

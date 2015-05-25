@@ -7,6 +7,7 @@ import (
 	"github.com/phonkee/patrol/context"
 	"github.com/phonkee/patrol/core"
 	"github.com/phonkee/patrol/models"
+	"github.com/phonkee/patrol/rest/views"
 	"github.com/phonkee/patrol/signals"
 	"github.com/phonkee/patrol/views/realtime"
 )
@@ -50,11 +51,11 @@ func (r *RealtimePlugin) Init() (err error) {
 }
 
 // list of urls
-func (r *RealtimePlugin) URLViews() []*core.URLView {
-	return []*core.URLView{
-		core.NewURLView(
+func (r *RealtimePlugin) URLs() []*views.URL {
+	return []*views.URL{
+		views.NewURL(
 			"/api/realtime/websocket",
-			func() core.Viewer {
+			func() views.Viewer {
 				return realtime.NewWebsocketAPIView(r.getSubscribeQueues)
 			},
 		).Name(ROUTE_REALTIME),

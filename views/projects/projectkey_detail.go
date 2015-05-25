@@ -4,13 +4,13 @@ import (
 	"net/http"
 
 	"github.com/phonkee/patrol/context"
-	"github.com/phonkee/patrol/core"
 	"github.com/phonkee/patrol/models"
 	"github.com/phonkee/patrol/rest/response"
+	"github.com/phonkee/patrol/rest/views"
 )
 
 type ProjectKeyDetailAPIView struct {
-	core.JSONView
+	views.APIView
 
 	context *context.Context
 }

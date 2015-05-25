@@ -8,6 +8,7 @@ import (
 	"github.com/phonkee/patrol/core"
 	"github.com/phonkee/patrol/middlewares"
 	"github.com/phonkee/patrol/models"
+	"github.com/phonkee/patrol/rest/views"
 	"github.com/phonkee/patrol/settings"
 	"github.com/phonkee/patrol/signals"
 	"github.com/phonkee/patrol/views/events"
@@ -66,35 +67,35 @@ func (e *EventsPlugin) SendOnEventSignal(event *models.Event, eventgroup *models
 	}
 }
 
-func (e *EventsPlugin) URLViews() []*core.URLView {
+func (e *EventsPlugin) URLs() []*views.URL {
 	mids := []alice.Constructor{
 		middlewares.AuthTokenValidMiddleware(),
 	}
-	result := []*core.URLView{
-		core.NewURLView("/api/{project_id:[0-9]+}/store/",
-			func() core.Viewer {
+	result := []*views.URL{
+		views.NewURL("/api/{project_id:[0-9]+}/store/",
+			func() views.Viewer {
 				return &events.EventStoreAPIView{}
 			},
 		).Name(settings.ROUTE_EVENTS_EVENT_STORE),
-		core.NewURLView("/api/projects/project/{project_id:[0-9]+}/eventgroup",
-			func() core.Viewer {
+		views.NewURL("/api/projects/project/{project_id:[0-9]+}/eventgroup",
+			func() views.Viewer {
 				return &events.EventGroupListAPIView{}
 			},
 		).Name(settings.ROUTE_EVENTS_EVENTGROUP_LIST).Middlewares(mids...),
 
-		core.NewURLView("/api/projects/project/{project_id:[0-9]+}/eventgroup/{eventgroup_id:[0-9]+}",
-			func() core.Viewer {
+		views.NewURL("/api/projects/project/{project_id:[0-9]+}/eventgroup/{eventgroup_id:[0-9]+}",
+			func() views.Viewer {
 				return &events.EventGroupDetailAPIView{}
 			},
 		).Name(settings.ROUTE_EVENTS_EVENTGROUP_DETAIL).Middlewares(mids...),
 
-		core.NewURLView("/api/projects/project/{project_id:[0-9]+}/eventgroup/{eventgroup_id:[0-9]+}/resolve",
-			func() core.Viewer {
+		views.NewURL("/api/projects/project/{project_id:[0-9]+}/eventgroup/{eventgroup_id:[0-9]+}/resolve",
+			func() views.Viewer {
 				return &events.EventGroupResolveAPIView{}
 			},
 		).Name(settings.ROUTE_EVENTS_EVENTGROUP_RESOLVE).Middlewares(mids...),
-		core.NewURLView("/api/projects/project/{project_id:[0-9]+}/eventgroup/{eventgroup_id:[0-9]+}/event/",
-			func() core.Viewer {
+		views.NewURL("/api/projects/project/{project_id:[0-9]+}/eventgroup/{eventgroup_id:[0-9]+}/event/",
+			func() views.Viewer {
 				return &events.EventListView{}
 			},
 		).Name(settings.ROUTE_EVENTS_EVENT_LIST).Middlewares(mids...),

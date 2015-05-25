@@ -6,6 +6,7 @@ import (
 	"github.com/phonkee/patrol/core"
 	"github.com/phonkee/patrol/middlewares"
 	"github.com/phonkee/patrol/models"
+	"github.com/phonkee/patrol/rest/views"
 	"github.com/phonkee/patrol/settings"
 	"github.com/phonkee/patrol/views/projects"
 )
@@ -24,41 +25,41 @@ type ProjectsPlugin struct {
 }
 
 func (p *ProjectsPlugin) ID() string { return settings.PROJECTS_PLUGIN_ID }
-func (p *ProjectsPlugin) URLViews() []*core.URLView {
+func (p *ProjectsPlugin) URLs() []*views.URL {
 	mids := []alice.Constructor{
 		middlewares.AuthTokenValidMiddleware(),
 	}
-	return []*core.URLView{
-		core.NewURLView(
-			"/api/projects/project/", func() core.Viewer { return &projects.ProjectListAPIView{} },
+	return []*views.URL{
+		views.NewURL(
+			"/api/projects/project/", func() views.Viewer { return &projects.ProjectListAPIView{} },
 		).Name(settings.ROUTE_PROJECTS_PROJECT_LIST).Middlewares(mids...),
 
-		core.NewURLView("/api/projects/project/{project_id:[0-9]+}",
-			func() core.Viewer {
+		views.NewURL("/api/projects/project/{project_id:[0-9]+}",
+			func() views.Viewer {
 				return &projects.ProjectDetailAPIView{}
 			},
 		).Name(settings.ROUTE_PROJECTS_PROJECT_DETAIL).Middlewares(mids...),
 
-		core.NewURLView("/api/projects/project/{project_id:[0-9]+}/key",
-			func() core.Viewer {
+		views.NewURL("/api/projects/project/{project_id:[0-9]+}/key",
+			func() views.Viewer {
 				return &projects.ProjectKeyListAPIView{}
 			},
 		).Name(settings.ROUTE_PROJECTS_PROJECTKEY_LIST).Middlewares(mids...),
 
-		core.NewURLView("/api/projects/project/{project_id:[0-9]+}/key/{projectkey_id:[0-9]+}",
-			func() core.Viewer {
+		views.NewURL("/api/projects/project/{project_id:[0-9]+}/key/{projectkey_id:[0-9]+}",
+			func() views.Viewer {
 				return &projects.ProjectKeyDetailAPIView{}
 			},
 		).Name(settings.ROUTE_PROJECTS_PROJECTKEY_DETAIL).Middlewares(mids...),
 
-		core.NewURLView("/api/projects/project/{project_id:[0-9]+}/member/",
-			func() core.Viewer {
+		views.NewURL("/api/projects/project/{project_id:[0-9]+}/member/",
+			func() views.Viewer {
 				return &projects.ProjectMemeberListAPIView{}
 			},
 		).Name(settings.ROUTE_PROJECTS_PROJECTMEMBER_LIST).Middlewares(mids...),
 
-		core.NewURLView("/api/projects/project/{project_id:[0-9]+}/member/{member_id:[0-9]+}",
-			func() core.Viewer {
+		views.NewURL("/api/projects/project/{project_id:[0-9]+}/member/{member_id:[0-9]+}",
+			func() views.Viewer {
 				return &projects.ProjectMemeberDetailAPIView{}
 			},
 		).Name(settings.ROUTE_PROJECTS_PROJECTMEMBER_DETAIL).Middlewares(mids...),

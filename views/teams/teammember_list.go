@@ -4,17 +4,17 @@ import (
 	"net/http"
 
 	"github.com/phonkee/patrol/context"
-	"github.com/phonkee/patrol/core"
 	"github.com/phonkee/patrol/models"
 	"github.com/phonkee/patrol/rest/metadata"
 	"github.com/phonkee/patrol/rest/response"
+	"github.com/phonkee/patrol/rest/views"
 	"github.com/phonkee/patrol/serializers"
 	"github.com/phonkee/patrol/utils"
 	"github.com/phonkee/patrol/views/mixins"
 )
 
 // Factory for new TeamMemberListAPIView
-func NewTeamMemberListAPIView() core.Viewer {
+func NewTeamMemberListAPIView() views.Viewer {
 	return &TeamMemberListAPIView{
 		team: models.NewTeam(),
 		user: models.NewUser(),
@@ -25,7 +25,7 @@ func NewTeamMemberListAPIView() core.Viewer {
 	Team member list endpoint
 */
 type TeamMemberListAPIView struct {
-	core.JSONView
+	views.APIView
 
 	// userd mixins
 	mixins.AuthUserMixin

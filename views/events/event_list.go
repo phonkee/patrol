@@ -5,8 +5,8 @@ import (
 
 	"github.com/golang/glog"
 	"github.com/phonkee/patrol/context"
-	"github.com/phonkee/patrol/core"
 	"github.com/phonkee/patrol/rest/response"
+	"github.com/phonkee/patrol/rest/views"
 	"github.com/phonkee/patrol/views/mixins"
 )
 
@@ -15,7 +15,7 @@ EventListView
 	list of events to eventgroup
 */
 type EventListView struct {
-	core.JSONView
+	views.APIView
 	mixins.EvenGroupDetailMixin
 	mixins.ProjectMemberTypeMixin
 

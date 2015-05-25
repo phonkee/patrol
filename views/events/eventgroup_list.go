@@ -5,15 +5,15 @@ import (
 
 	"github.com/phonkee/patrol/context"
 	"github.com/phonkee/patrol/rest/response"
+	"github.com/phonkee/patrol/rest/views"
 
 	"github.com/gorilla/mux"
-	"github.com/phonkee/patrol/core"
 	"github.com/phonkee/patrol/models"
 	"github.com/phonkee/patrol/views/mixins"
 )
 
 type EventGroupListAPIView struct {
-	core.JSONView
+	views.APIView
 
 	// returns member type
 	mixins.ProjectMemberTypeMixin

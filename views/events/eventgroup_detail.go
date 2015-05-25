@@ -6,8 +6,8 @@ import (
 
 	"github.com/phonkee/patrol/context"
 	"github.com/phonkee/patrol/rest/response"
+	"github.com/phonkee/patrol/rest/views"
 
-	"github.com/phonkee/patrol/core"
 	"github.com/phonkee/patrol/views/mixins"
 )
 
@@ -16,7 +16,7 @@ var (
 )
 
 type EventGroupDetailAPIView struct {
-	core.JSONView
+	views.APIView
 
 	// returns member type
 	mixins.ProjectMemberTypeMixin

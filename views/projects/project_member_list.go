@@ -4,10 +4,10 @@ import (
 	"net/http"
 
 	"github.com/phonkee/patrol/context"
-	"github.com/phonkee/patrol/core"
 	"github.com/phonkee/patrol/models"
 	"github.com/phonkee/patrol/rest/metadata"
 	"github.com/phonkee/patrol/rest/response"
+	"github.com/phonkee/patrol/rest/views"
 	"github.com/phonkee/patrol/serializers"
 	"github.com/phonkee/patrol/views/mixins"
 )
@@ -16,7 +16,7 @@ import (
 	Rest endpoint for project members list
 */
 type ProjectMemeberListAPIView struct {
-	core.JSONView
+	views.APIView
 
 	context *context.Context
 

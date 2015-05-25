@@ -3,9 +3,9 @@ package auth
 import (
 	"net/http"
 
-	"github.com/phonkee/patrol/core"
 	"github.com/phonkee/patrol/models"
 	"github.com/phonkee/patrol/rest/response"
+	"github.com/phonkee/patrol/rest/views"
 	"github.com/phonkee/patrol/views/mixins"
 )
 
@@ -15,7 +15,7 @@ returns information about user by jwt
 */
 
 type AuthMeAPIView struct {
-	core.JSONView
+	views.APIView
 	mixins.AuthUserMixin
 }
 

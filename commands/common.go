@@ -205,13 +205,13 @@ func (c *CommonListRoutesCommand) Run() error {
 	c.pr.Do(func(plugin core.Pluginer) error {
 
 		// no urls, no entry
-		if len(plugin.URLViews()) == 0 {
+		if len(plugin.URLs()) == 0 {
 			return nil
 		}
 
 		fmt.Println(sectioncolor("[" + plugin.ID() + "]"))
 
-		for _, uv := range plugin.URLViews() {
+		for _, uv := range plugin.URLs() {
 			url := utils.StringPadRight(fmt.Sprintf("    %s", uv.URL()), " ", settings.LIST_ROUTES_COMMAND_PADDING)
 			colorized := itemcolor(url)
 			if len(url) > settings.LIST_ROUTES_COMMAND_PADDING {

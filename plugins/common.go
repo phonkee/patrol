@@ -4,6 +4,7 @@ import (
 	"github.com/phonkee/patrol/commands"
 	"github.com/phonkee/patrol/context"
 	"github.com/phonkee/patrol/core"
+	"github.com/phonkee/patrol/rest/views"
 	"github.com/phonkee/patrol/settings"
 	"github.com/phonkee/patrol/views/common"
 )
@@ -33,9 +34,9 @@ func (p *CommonPlugin) Commands() []core.Commander {
 }
 
 // list of urls
-func (c *CommonPlugin) URLViews() []*core.URLView {
-	return []*core.URLView{
-		core.NewURLView("/api/version", func() core.Viewer { return &common.VersionAPIView{} }).Name(settings.ROUTE_COMMON_VERSION),
-		core.NewURLView("/api/monitor", func() core.Viewer { return &common.MonitorAPIView{} }).Name(settings.ROUTE_COMMON_MONITOR),
+func (c *CommonPlugin) URLs() []*views.URL {
+	return []*views.URL{
+		views.NewURL("/api/version", func() views.Viewer { return &common.VersionAPIView{} }).Name(settings.ROUTE_COMMON_VERSION),
+		views.NewURL("/api/monitor", func() views.Viewer { return &common.MonitorAPIView{} }).Name(settings.ROUTE_COMMON_MONITOR),
 	}
 }

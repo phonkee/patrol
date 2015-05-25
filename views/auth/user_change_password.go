@@ -5,17 +5,17 @@ import (
 	"net/http"
 
 	"github.com/phonkee/patrol/context"
-	"github.com/phonkee/patrol/core"
 	"github.com/phonkee/patrol/models"
 	"github.com/phonkee/patrol/rest"
 	"github.com/phonkee/patrol/rest/response"
+	"github.com/phonkee/patrol/rest/views"
 	"github.com/phonkee/patrol/serializers"
 	"github.com/phonkee/patrol/types"
 	"github.com/phonkee/patrol/views/mixins"
 )
 
 type UserChangePasswordAPIView struct {
-	core.JSONView
+	views.APIView
 	mixins.AuthUserMixin
 
 	context  *context.Context

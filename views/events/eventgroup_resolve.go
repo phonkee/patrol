@@ -4,9 +4,9 @@ import (
 	"net/http"
 
 	"github.com/phonkee/patrol/context"
-	"github.com/phonkee/patrol/core"
 	"github.com/phonkee/patrol/models"
 	"github.com/phonkee/patrol/rest/response"
+	"github.com/phonkee/patrol/rest/views"
 	"github.com/phonkee/patrol/views/mixins"
 )
 
@@ -15,7 +15,7 @@ Mark eventgroup as resolved
 send notification for frontend
 */
 type EventGroupResolveAPIView struct {
-	core.JSONView
+	views.APIView
 	context *context.Context
 	user    *models.User
 
