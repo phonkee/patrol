@@ -7,9 +7,9 @@ import (
 	"github.com/Pallinder/go-randomdata"
 	"github.com/phonkee/patrol/apitest"
 	"github.com/phonkee/patrol/models"
+	"github.com/phonkee/patrol/serializers"
 	"github.com/phonkee/patrol/settings"
 	"github.com/phonkee/patrol/utils"
-	"github.com/phonkee/patrol/views/auth"
 	. "github.com/smartystreets/goconvey/convey"
 )
 
@@ -34,7 +34,7 @@ func TestAuthCreateUser(t *testing.T) {
 
 	Convey("Create user, valid data - superuser", t, func() {
 		password := utils.RandomString(20)
-		serializer := auth.UserCreateSerializer{
+		serializer := serializers.AuthUserCreateSerializer{
 			Email:          utils.RandomString(20) + randomdata.Email(),
 			Username:       utils.RandomString(20),
 			Name:           randomdata.FullName(randomdata.Male),

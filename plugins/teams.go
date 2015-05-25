@@ -38,6 +38,16 @@ func (t *TeamsPlugin) URLViews() []*core.URLView {
 				return &teams.TeamDetailAPIView{}
 			},
 		).Name(settings.ROUTE_TEAMS_TEAM_DETAIL).Middlewares(mids...),
+
+		core.NewURLView(
+			"/api/teams/team/{team_id:[0-9]+}/member/",
+			teams.NewTeamMemberListAPIView,
+		).Name(settings.ROUTE_TEAMS_TEAMMEMBER_LIST).Middlewares(mids...),
+
+		core.NewURLView(
+			"/api/teams/team/{team_id:[0-9]+}/member/{teammember_id:[0-9]+}",
+			teams.NewTeamMemberDetailAPIView,
+		).Name(settings.ROUTE_TEAMS_TEAMMEMBER_DETAIL).Middlewares(mids...),
 	}
 }
 

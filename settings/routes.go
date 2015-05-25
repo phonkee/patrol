@@ -23,6 +23,8 @@ const (
 	ROUTE_EVENTS_EVENT_LIST         = "api-events-event-list"
 	ROUTE_EVENTS_EVENT_STORE        = "api-events-event-store"
 
-	ROUTE_TEAMS_TEAM_DETAIL = "api-teams-team-detail"
-	ROUTE_TEAMS_TEAM_LIST   = "api-teams-team-list"
+	ROUTE_TEAMS_TEAM_DETAIL       = "api-teams-team-detail"
+	ROUTE_TEAMS_TEAM_LIST         = "api-teams-team-list"
+	ROUTE_TEAMS_TEAMMEMBER_LIST   = "api-teams-teammember-list"
+	ROUTE_TEAMS_TEAMMEMBER_DETAIL = "api-teams-teammember-detail"
 )

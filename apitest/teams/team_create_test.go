@@ -6,9 +6,9 @@ import (
 
 	"github.com/phonkee/patrol/apitest"
 	"github.com/phonkee/patrol/models"
+	"github.com/phonkee/patrol/serializers"
 	"github.com/phonkee/patrol/settings"
 	"github.com/phonkee/patrol/utils"
-	"github.com/phonkee/patrol/views/teams"
 	. "github.com/smartystreets/goconvey/convey"
 )
 
@@ -19,7 +19,7 @@ func TestTeamCreate(t *testing.T) {
 	Convey("Create team for unauthorized user", t, func() {
 		session := apitest.NewSession()
 
-		serializer := teams.TeamCreateSerializer{
+		serializer := serializers.TeamsTeamCreateSerializer{
 			Name: "test team" + utils.RandomString(10),
 		}
 
@@ -33,7 +33,7 @@ func TestTeamCreate(t *testing.T) {
 			user.IsActive = true
 		})
 
-		serializer := teams.TeamCreateSerializer{
+		serializer := serializers.TeamsTeamCreateSerializer{
 			Name: "test team" + utils.RandomString(10),
 		}
 
@@ -47,7 +47,7 @@ func TestTeamCreate(t *testing.T) {
 			user.IsActive = true
 		})
 
-		serializer := teams.TeamCreateSerializer{
+		serializer := serializers.TeamsTeamCreateSerializer{
 			Name: "test team" + utils.RandomString(10),
 		}
 

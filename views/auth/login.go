@@ -8,15 +8,9 @@ import (
 	"github.com/phonkee/patrol/models"
 	"github.com/phonkee/patrol/rest/metadata"
 	"github.com/phonkee/patrol/rest/response"
+	"github.com/phonkee/patrol/serializers"
 	"github.com/phonkee/patrol/settings"
-	"github.com/phonkee/patrol/utils"
 )
-
-// Serializers used in login
-type LoginSerializer struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
-}
 
 type AuthLoginAPIView struct {
 	core.JSONView
@@ -29,14 +23,14 @@ type AuthLoginAPIView struct {
 }
 
 func (a *AuthLoginAPIView) Before(w http.ResponseWriter, r *http.Request) (err error) {
-	a.context = a.Context(r)
+	a.context = a.GetContext(r)
 	return
 }
 
 // Options request
 func (a *AuthLoginAPIView) OPTIONS(w http.ResponseWriter, r *http.Request) {
 	md := metadata.New("Login user")
-	md.Action("POST").From(LoginSerializer{})
+	md.Action("POST").From(serializers.AuthLoginSerializer{})
 	response.New().Raw(md).Write(w, r)
 }
 
@@ -45,53 +39,38 @@ func (a *AuthLoginAPIView) OPTIONS(w http.ResponseWriter, r *http.Request) {
 func (l *AuthLoginAPIView) POST(w http.ResponseWriter, r *http.Request) {
 	var err error
 
-	login := LoginSerializer{}
+	serializer := serializers.AuthLoginSerializer{}
 
-	context := l.Context(r)
-
-	// prepare blank response
-	response := response.New()
-
-	// unmarshal request body to LoginSerializer
-	if err = l.Unmarshal(r.Body, &login); err != nil {
-		response.Status(http.StatusBadRequest).Write(w, r)
+	// unmarshal request body to serializers.AuthLoginSerializer
+	if err = l.context.Bind(&serializer); err != nil {
+		response.New(http.StatusBadRequest).Write(w, r)
 		return
 	}
 
-	usermanager := models.NewUserManager(context)
+	vr := serializer.Validate(l.context)
 
-	// find user in db by username
-	user := usermanager.NewUser()
-	if err = usermanager.Get(user, usermanager.QueryFilterUsername(login.Username)); err != nil {
-		response.Status(http.StatusUnauthorized).Error(err).Write(w, r)
+	if !vr.IsValid() {
+		response.New(http.StatusBadRequest).Error(vr).Write(w, r)
 		return
 	}
 
-	// check password
-	var ok bool
-	if ok, err = user.VerifyPassword(login.Password); err != nil {
-		response.Status(http.StatusInternalServerError).Write(w, r)
-		return
-	} else {
-		if !ok {
-			response.Status(http.StatusUnauthorized).Write(w, r)
-			return
+	user := models.NewUser()
+	token := ""
+	if user, token, err = serializer.Login(l.context); err != nil {
+		switch err {
+		case serializers.ErrUsernamePassword:
+			vr.AddUnboundError(err)
+			response.New(http.StatusUnauthorized).Error(vr).Write(w, r)
+		case serializers.ErrInternalServerError:
+			fallthrough
+		default:
+			response.New(http.StatusInternalServerError).Error(err).Write(w, r)
 		}
-	}
-
-	// create token
-	var token string
-	if token, err = usermanager.Login(user); err != nil {
-		response.Status(http.StatusInternalServerError).Error(err).Write(w, r)
 		return
 	}
-
-	// update last login
-	user.LastLogin = utils.NowTruncated()
-	user.Update(context, "last_login")
 
 	// send signal
 	l.LoginSignal(user)
 
-	response.Status(http.StatusOK).Header(settings.AUTH_TOKEN_HEADER_NAME, token).Write(w, r)
+	response.New(http.StatusOK).Header(settings.AUTH_TOKEN_HEADER_NAME, token).Write(w, r)
 }

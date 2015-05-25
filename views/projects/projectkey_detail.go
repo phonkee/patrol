@@ -16,7 +16,7 @@ type ProjectKeyDetailAPIView struct {
 }
 
 func (p *ProjectKeyDetailAPIView) Before(w http.ResponseWriter, r *http.Request) (err error) {
-	p.context = p.Context(r)
+	p.context = p.GetContext(r)
 	return
 }
 

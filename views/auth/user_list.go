@@ -8,6 +8,7 @@ import (
 	"github.com/phonkee/patrol/models"
 	"github.com/phonkee/patrol/rest/metadata"
 	"github.com/phonkee/patrol/rest/response"
+	"github.com/phonkee/patrol/serializers"
 	"github.com/phonkee/patrol/views"
 	"github.com/phonkee/patrol/views/mixins"
 )
@@ -37,7 +38,7 @@ type UserListAPIView struct {
 
 // Before every method
 func (u *UserListAPIView) Before(w http.ResponseWriter, r *http.Request) (err error) {
-	u.context = u.Context(r)
+	u.context = u.GetContext(r)
 	u.user = models.NewUser()
 
 	if err = u.GetAuthUser(u.user, w, r); err != nil {
@@ -58,7 +59,7 @@ func (u *UserListAPIView) OPTIONS(w http.ResponseWriter, r *http.Request) {
 	// @TODO: check permissions
 
 	md := metadata.New("User list").SetDescription("User list endpoint")
-	md.ActionRetrieve().From(UserListItemSerializer{})
+	md.ActionRetrieve().From(serializers.AuthUserDetailSerializer{})
 
 	response.New(http.StatusOK).Metadata(md).Write(w, r)
 }
@@ -73,14 +74,13 @@ func (u *UserListAPIView) GET(w http.ResponseWriter, r *http.Request) {
 
 	// @TODO: check permissions
 
-	list := []*UserListItemSerializer{}
+	list := []*serializers.AuthUserDetailSerializer{}
 	if err = manager.FilterPaged(&list, paginator); err != nil {
 		response.New(http.StatusInternalServerError).Write(w, r)
 		return
 	}
 
 	response.New(http.StatusOK).Result(list).Paging(paginator).Write(w, r)
-	return
 }
 
 /*
@@ -89,7 +89,7 @@ Create new user
 func (u *UserListAPIView) POST(w http.ResponseWriter, r *http.Request) {
 	var err error
 
-	serializer := &UserCreateSerializer{}
+	serializer := &serializers.AuthUserCreateSerializer{}
 	if err = u.context.Bind(serializer); err != nil {
 		response.New(http.StatusBadRequest).Write(w, r)
 		return
@@ -101,34 +101,14 @@ func (u *UserListAPIView) POST(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// populate user with serializer data
-	user := models.NewUser(func(us *models.User) {
-		us.Username = serializer.Username
-		us.Email = serializer.Email
-		us.Name = serializer.Name
-		us.IsActive = serializer.IsActive
-		us.IsSuperuser = serializer.IsSuperuser
-		us.SetPassword(serializer.Password)
-	})
+	var result *serializers.AuthUserDetailSerializer
 
-	if err = user.Insert(u.context); err != nil {
-		response.New(http.StatusInternalServerError).Write(w, r)
+	// save user to database
+	if result, err = serializer.Save(u.context); err != nil {
+		response.New(http.StatusInternalServerError).Error(err).Write(w, r)
 		return
-	}
-
-	// prepare response
-	result := &UserListItemSerializer{
-		ID:          user.ID,
-		Username:    user.Username,
-		Email:       user.Email,
-		Name:        user.Name,
-		IsActive:    user.IsActive,
-		IsSuperuser: user.IsSuperuser,
-		DateAdded:   user.DateAdded,
-		LastLogin:   user.LastLogin,
 	}
 
 	// clear password - no need to send it through wire
 	response.New(http.StatusCreated).Result(result).Write(w, r)
-	return
 }

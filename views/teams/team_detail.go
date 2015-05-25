@@ -16,7 +16,7 @@ type TeamDetailAPIView struct {
 }
 
 func (t *TeamDetailAPIView) Before(w http.ResponseWriter, r *http.Request) (err error) {
-	context := t.Context(r)
+	context := t.GetContext(r)
 
 	um := models.NewUserManager(context)
 	user := um.NewUser()

@@ -7,9 +7,9 @@ import (
 	"github.com/phonkee/patrol"
 	"github.com/phonkee/patrol/apitest"
 	"github.com/phonkee/patrol/models"
+	"github.com/phonkee/patrol/serializers"
 	"github.com/phonkee/patrol/settings"
 	"github.com/phonkee/patrol/utils"
-	"github.com/phonkee/patrol/views/projects"
 	. "github.com/smartystreets/goconvey/convey"
 )
 
@@ -37,7 +37,7 @@ func TestProjectCreate(t *testing.T) {
 			user.IsActive = true
 		})
 
-		serializer := projects.ProjectCreateSerializer{
+		serializer := serializers.ProjectsProjectCreateSerializer{
 			Name:     "test project " + utils.RandomString(10),
 			Platform: "any",
 			TeamID:   team.ID.ToForeignKey(),
@@ -53,7 +53,7 @@ func TestProjectCreate(t *testing.T) {
 			user.IsActive = true
 		})
 
-		serializer := projects.ProjectCreateSerializer{
+		serializer := serializers.ProjectsProjectCreateSerializer{
 			Name:     "test project " + utils.RandomString(10),
 			Platform: "any",
 			TeamID:   team.ID.ToForeignKey(),

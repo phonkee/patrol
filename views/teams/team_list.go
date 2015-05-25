@@ -3,11 +3,13 @@ package teams
 import (
 	"net/http"
 
+	"github.com/phonkee/patrol/context"
 	"github.com/phonkee/patrol/core"
 	"github.com/phonkee/patrol/models"
 	"github.com/phonkee/patrol/rest/metadata"
 	"github.com/phonkee/patrol/rest/response"
-	"github.com/phonkee/patrol/rest/validator"
+	"github.com/phonkee/patrol/serializers"
+	"github.com/phonkee/patrol/views/mixins"
 )
 
 /*
@@ -21,17 +23,20 @@ Provides following methods
 type TeamListAPIView struct {
 	core.JSONView
 
+	// mixins
+	mixins.AuthUserMixin
+
+	context *context.Context
+
 	user *models.User
 }
 
 func (t *TeamListAPIView) Before(w http.ResponseWriter, r *http.Request) (err error) {
-	context := t.Context(r)
-	t.user = models.NewUser()
+	t.context = t.GetContext(r)
 
-	// user somehow cannot be read from request
-	if err = t.user.Manager(context).GetAuthUser(t.user, r); err != nil {
-		response.New(http.StatusInternalServerError).Error(err).Write(w, r)
-		return core.ErrUnauthorized
+	t.user = models.NewUser()
+	if err = t.GetAuthUser(t.user, w, r); err != nil {
+		return
 	}
 
 	// check
@@ -55,7 +60,7 @@ func (t *TeamListAPIView) OPTIONS(w http.ResponseWriter, r *http.Request) {
 
 	if t.user.IsSuperuser {
 		createAction := md.ActionCreate()
-		createAction.Field("name").SetHelpText("team name").SetRequired(true).SetMax(135)
+		createAction.Field("name").SetHelpText("team name").SetRequired(true).SetMax(200).SetMin(5)
 
 		// add delete action
 		md.ActionDelete()
@@ -64,31 +69,20 @@ func (t *TeamListAPIView) OPTIONS(w http.ResponseWriter, r *http.Request) {
 	retrieve := md.ActionRetrieve()
 	retrieve.Field("name").SetHelpText("team name")
 
-	response.New(http.StatusOK).Raw(md).Write(w, r)
-	return
+	// write metadata to response
+	response.New(http.StatusOK).Metadata(md).Write(w, r)
 }
 
 // Retrieve tems list
 func (t *TeamListAPIView) GET(w http.ResponseWriter, r *http.Request) {
 	var err error
 
-	context := t.Context(r)
-
-	authm := models.NewUserManager(context)
-	teamm := models.NewTeamManager(context)
-
-	// GetAuthUser - returns user from request
-	user := authm.NewUser()
-	if err = authm.GetAuthUser(user, r); err != nil {
-		response.New(http.StatusForbidden).Write(w, r)
-		return
-	}
-
+	teamm := models.NewTeamManager(t.context)
 	teams := teamm.NewTeamList()
 
 	// Filter teams for user
 
-	if err = teamm.FilterByUser(&teams, user); err != nil {
+	if err = teamm.FilterByUser(&teams, t.user); err != nil {
 		response.New(http.StatusUnauthorized).Error(err).Write(w, r)
 		return
 	}
@@ -100,40 +94,21 @@ func (t *TeamListAPIView) GET(w http.ResponseWriter, r *http.Request) {
 func (t *TeamListAPIView) POST(w http.ResponseWriter, r *http.Request) {
 	var err error
 
-	context := t.Context(r)
-
-	cs := TeamCreateSerializer{}
-	if err = context.Bind(&cs); err != nil {
+	serializer := serializers.TeamsTeamCreateSerializer{}
+	if err = t.context.Bind(&serializer); err != nil {
 		response.New(http.StatusBadRequest).Write(w, r)
 		return
 	}
 
-	// GetAuthUser - returns user from request
-	authm := models.NewUserManager(context)
-	user := authm.NewUser()
-	if err = authm.GetAuthUser(user, r); err != nil {
-		response.New(http.StatusForbidden).Write(w, r)
+	if vr := serializer.Validate(t.context); !vr.IsValid() {
+		response.New(http.StatusBadRequest).Error(vr).Write(w, r)
 		return
 	}
 
-	teamm := models.NewTeamManager(context)
-	team := teamm.NewTeam(func(team *models.Team) {
-		team.Name = cs.Name
-		team.OwnerID = user.PrimaryKey().ToForeignKey()
-	})
+	var team *models.Team
 
-	var result *validator.Result
-	if result, err = team.Validate(context); err != nil {
-		response.New(http.StatusInternalServerError).Write(w, r)
-		return
-	}
-
-	if !result.IsValid() {
-		response.New(http.StatusBadRequest).Error(result).Write(w, r)
-		return
-	}
-
-	if err = team.Insert(context); err != nil {
+	// save serializer (team)
+	if team, err = serializer.Save(t.context, t.user); err != nil {
 		response.New(http.StatusInternalServerError).Write(w, r)
 		return
 	}

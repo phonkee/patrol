@@ -8,12 +8,8 @@ import (
 
 func CreateProject(ctx *context.Context, user *models.User) (project *models.Project, err error) {
 
-	team := models.NewTeam(func(t *models.Team) {
-		t.Name = "test team " + utils.RandomString(10)
-		t.OwnerID = user.ID.ToForeignKey()
-	})
-
-	if err = team.Insert(ctx); err != nil {
+	var team *models.Team
+	if team, err = CreateTeam(ctx, user); err != nil {
 		return
 	}
 

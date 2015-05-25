@@ -1,17 +1,13 @@
 package core
 
 import (
-	"encoding/json"
 	"errors"
 	"flag"
 	"fmt"
-	"io"
 	"net/http"
-	"strconv"
 
 	"github.com/phonkee/patrol/context"
 	"github.com/phonkee/patrol/rest/response"
-	"github.com/phonkee/patrol/types"
 
 	"github.com/golang/glog"
 	"github.com/gorilla/mux"
@@ -100,7 +96,7 @@ type Viewer interface {
 	MethodNotAllowed(w http.ResponseWriter, r *http.Request)
 
 	// returns context by request
-	Context(r *http.Request) *context.Context
+	GetContext(r *http.Request) *context.Context
 }
 
 /*
@@ -268,7 +264,7 @@ provides some helpers above response (status)
 */
 type GenericView struct{}
 
-func (g *GenericView) Context(r *http.Request) (c *context.Context) {
+func (g *GenericView) GetContext(r *http.Request) (c *context.Context) {
 	var err error
 	if c, err = context.Get(r); err != nil {
 		panic("context is not there")
@@ -301,70 +297,15 @@ func (g GenericView) Middlewares() []alice.Constructor {
 	return []alice.Constructor{}
 }
 
-/*
-returns mux variable as int64
-*/
-func (g *GenericView) GetMuxVarInt64(r *http.Request, name string) (value int64, err error) {
-	vars := mux.Vars(r)
-	stringvar, ok := vars[name]
-	if !ok {
-		return value, ErrMuxVarNotFound
-	}
-
-	if value, err = strconv.ParseInt(stringvar, 10, 0); err != nil {
-		return
-	}
-
-	return
-}
-
-func (g *GenericView) GetMuxVarForeignKey(r *http.Request, name string) (value *types.ForeignKey, err error) {
-	var intvar int64
-
-	if intvar, err = g.GetMuxVarInt64(r, name); err != nil {
-		return
-	}
-	fk := types.ForeignKey(intvar)
-	return &fk, nil
-}
-
 /*JSONView
  */
 type JSONView struct {
 	GenericView
 }
 
-/* Helper to unmarshal json to target
- */
-func (j *JSONView) Unmarshal(body io.Reader, target interface{}) error {
-	decoder := json.NewDecoder(body)
-	return decoder.Decode(target)
-}
-
+/*
+Method not allowed implementation
+*/
 func (j *JSONView) MethodNotAllowed(w http.ResponseWriter, r *http.Request) {
 	response.New(http.StatusMethodNotAllowed).Write(w, r)
-}
-
-func (j *JSONView) GetParam(r *http.Request, param string) (value string, ok bool) {
-	vars := mux.Vars(r)
-	value, ok = vars[param]
-	return
-}
-
-func (j *JSONView) GetParamInt(r *http.Request, param string) (id int, err error) {
-	var (
-		value string
-		ok    bool
-	)
-
-	if value, ok = j.GetParam(r, param); !ok {
-		err = ErrParamNotFound
-		return
-	}
-
-	if id, err = strconv.Atoi(value); err != nil {
-		return
-	}
-
-	return
 }

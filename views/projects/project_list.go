@@ -9,8 +9,8 @@ import (
 	"github.com/phonkee/patrol/models"
 	"github.com/phonkee/patrol/rest/metadata"
 	"github.com/phonkee/patrol/rest/response"
+	"github.com/phonkee/patrol/serializers"
 	"github.com/phonkee/patrol/settings"
-	"github.com/phonkee/patrol/types"
 	"github.com/phonkee/patrol/views/mixins"
 )
 
@@ -30,7 +30,7 @@ type ProjectListAPIView struct {
 }
 
 func (p *ProjectListAPIView) Before(w http.ResponseWriter, r *http.Request) (err error) {
-	p.context = p.Context(r)
+	p.context = p.GetContext(r)
 
 	// get authenticated user
 	p.user = models.NewUser()
@@ -72,7 +72,7 @@ func (p *ProjectListAPIView) POST(w http.ResponseWriter, r *http.Request) {
 	var err error
 
 	// unmarshal posted data
-	serializer := ProjectCreateSerializer{}
+	serializer := serializers.ProjectsProjectCreateSerializer{}
 
 	if err = p.context.Bind(&serializer); err != nil {
 		response.New(http.StatusBadRequest).Write(w, r)
@@ -102,31 +102,9 @@ func (p *ProjectListAPIView) POST(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	// // create project
-	project := models.NewProject(func(proj *models.Project) {
-		proj.Name = serializer.Name
-		proj.Platform = serializer.Platform
-		proj.TeamID = types.ForeignKey(team.ID)
-	})
+	var project *models.Project
 
-	if vr, _ := project.Validate(p.context); !vr.IsValid() {
-		response.New(http.StatusBadRequest).Error(vr).Write(w, r)
-		return
-	}
-
-	if err = project.Insert(p.context); err != nil {
-		response.New(http.StatusInternalServerError).Error(err).Write(w, r)
-		return
-	}
-
-	// create new project key
-	pk := models.NewProjectKey(func(projectKey *models.ProjectKey) {
-		projectKey.UserID = types.ForeignKey(p.user.ID)
-		projectKey.UserAddedID = types.ForeignKey(p.user.ID)
-		projectKey.ProjectID = project.ID.ToForeignKey()
-	})
-
-	if err = pk.Insert(p.context); err != nil {
+	if project, err = serializer.Save(p.context, team, p.user); err != nil {
 		response.New(http.StatusInternalServerError).Error(err).Write(w, r)
 		return
 	}
@@ -157,7 +135,7 @@ func (p *ProjectListAPIView) OPTIONS(w http.ResponseWriter, r *http.Request) {
 
 	// if user has permission to create new project
 	if user.IsSuperuser || user.Permissions.Has(settings.PERMISSION_PROJECTS_PROJECT_ADD) {
-		create := md.ActionCreate().From(ProjectCreateSerializer{})
+		create := md.ActionCreate().From(serializers.ProjectsProjectCreateSerializer{})
 		create.Field("name").Update(models.UpdateProjectNameMetadata)
 		create.Field("platform").Update(models.UpdateProjectPlatformMetadata)
 

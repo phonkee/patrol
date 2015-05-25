@@ -97,10 +97,11 @@ func (p *Project) Validate(ctx *context.Context) (result *validator.Result, err 
 }
 
 // returns team
-func (p *Project) Team(target interface{}, manager *TeamManager) (err error) {
+func (p *Project) Team(target interface{}, context *context.Context) (err error) {
 	if p.TeamID.Int64() == 0 {
 		return ErrObjectDoesNotExists
 	}
+	manager := NewTeamManager(context)
 	return manager.GetByID(target, &p.TeamID)
 }
 

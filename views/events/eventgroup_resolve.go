@@ -29,7 +29,7 @@ type EventGroupResolveAPIView struct {
 Before method retrieves eventgroup, project from datastore.
 */
 func (p *EventGroupResolveAPIView) Before(w http.ResponseWriter, r *http.Request) (err error) {
-	p.context = p.Context(r)
+	p.context = p.GetContext(r)
 
 	p.user = models.NewUser()
 	if err = p.GetAuthUser(p.user, w, r); err != nil {

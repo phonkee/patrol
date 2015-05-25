@@ -38,7 +38,7 @@ type WebsocketAPIView struct {
 }
 
 func (v *WebsocketAPIView) Before(w http.ResponseWriter, r *http.Request) (err error) {
-	v.context = v.Context(r)
+	v.context = v.GetContext(r)
 
 	v.user = models.NewUser()
 	if e := v.GetAuthUser(v.user, w, r); e == nil {

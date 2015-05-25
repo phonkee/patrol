@@ -30,7 +30,7 @@ type ProjectMemeberDetailAPIView struct {
 }
 
 func (p *ProjectMemeberDetailAPIView) Before(w http.ResponseWriter, r *http.Request) (err error) {
-	p.context = p.Context(r)
+	p.context = p.GetContext(r)
 
 	// GetProject writes response so we only need to return error
 	p.project = models.NewProject()

@@ -7,9 +7,9 @@ import (
 	"github.com/phonkee/patrol"
 	"github.com/phonkee/patrol/apitest"
 	"github.com/phonkee/patrol/models"
+	"github.com/phonkee/patrol/serializers"
 	"github.com/phonkee/patrol/settings"
 	"github.com/phonkee/patrol/types"
-	"github.com/phonkee/patrol/views/projects"
 	. "github.com/smartystreets/goconvey/convey"
 )
 
@@ -31,7 +31,7 @@ func TestProjectMemberCreate(t *testing.T) {
 		session := apitest.NewSession()
 		request := session.Request("POST", settings.ROUTE_PROJECTS_PROJECTMEMBER_LIST, "project_id", project.ID.String())
 
-		serializer := &projects.ProjectMemberCreate{
+		serializer := &serializers.TeamsTeamMemberCreateSerializer{
 			Type:   models.MEMBER_TYPE_MEMBER,
 			UserID: types.PrimaryKey(1).ToForeignKey(),
 		}
@@ -46,7 +46,7 @@ func TestProjectMemberCreate(t *testing.T) {
 		session := apitest.NewSession().WithNewUser()
 		request := session.Request("POST", settings.ROUTE_PROJECTS_PROJECTMEMBER_LIST, "project_id", project.ID.String())
 
-		serializer := &projects.ProjectMemberCreate{
+		serializer := &serializers.TeamsTeamMemberCreateSerializer{
 			Type:   models.MEMBER_TYPE_MEMBER,
 			UserID: types.PrimaryKey(1).ToForeignKey(),
 		}
@@ -72,7 +72,7 @@ func TestProjectMemberCreate(t *testing.T) {
 		other, errcreate := apitest.CreateUser(patrol.Context)
 		So(errcreate, ShouldBeNil)
 
-		serializer := &projects.ProjectMemberCreate{
+		serializer := &serializers.TeamsTeamMemberCreateSerializer{
 			Type:   models.MEMBER_TYPE_MEMBER,
 			UserID: other.ID.ToForeignKey(),
 		}
@@ -100,7 +100,7 @@ func TestProjectMemberCreate(t *testing.T) {
 		newuser, errcreate := apitest.CreateUser(patrol.Context)
 		So(errcreate, ShouldBeNil)
 
-		pmcser := &projects.ProjectMemberCreate{
+		pmcser := &serializers.TeamsTeamMemberCreateSerializer{
 			Type:   models.MEMBER_TYPE_MEMBER,
 			UserID: newuser.ID.ToForeignKey(),
 		}
@@ -141,7 +141,7 @@ func TestProjectMemberCreate(t *testing.T) {
 		other, errcreate := apitest.CreateUser(patrol.Context)
 		So(errcreate, ShouldBeNil)
 
-		serializer := &projects.ProjectMemberCreate{
+		serializer := &serializers.TeamsTeamMemberCreateSerializer{
 			Type:   models.MEMBER_TYPE_MEMBER,
 			UserID: other.ID.ToForeignKey(),
 		}

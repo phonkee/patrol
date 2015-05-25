@@ -8,7 +8,7 @@ import (
 	"github.com/phonkee/patrol/models"
 	"github.com/phonkee/patrol/rest/metadata"
 	"github.com/phonkee/patrol/rest/response"
-	"github.com/phonkee/patrol/views/auth"
+	"github.com/phonkee/patrol/serializers"
 	"github.com/phonkee/patrol/views/mixins"
 )
 
@@ -24,6 +24,7 @@ type ProjectMemeberListAPIView struct {
 	mixins.AuthUserMixin
 	mixins.ProjectsProjectMixin
 	mixins.ProjectMemberTypeMixin
+	mixins.TeamsTeamMemberMixin
 
 	// model instances
 	project *models.Project
@@ -32,7 +33,7 @@ type ProjectMemeberListAPIView struct {
 }
 
 func (p *ProjectMemeberListAPIView) Before(w http.ResponseWriter, r *http.Request) (err error) {
-	p.context = p.Context(r)
+	p.context = p.GetContext(r)
 
 	// GetProject writes response so we only need to return error
 	p.project = models.NewProject()
@@ -56,37 +57,17 @@ func (p *ProjectMemeberListAPIView) Before(w http.ResponseWriter, r *http.Reques
 Retrieve list of user
 */
 func (p *ProjectMemeberListAPIView) GET(w http.ResponseWriter, r *http.Request) {
+
 	tmm := models.NewTeamMemberManager(p.context)
-	memberlist := models.NewTeamMemberList()
-	if err := tmm.Filter(&memberlist, tmm.QueryFilterProject(p.project)); err != nil {
+
+	result := []*serializers.TeamsTeamMemberDetailSerializer{}
+
+	if err := p.TeamsTeamMemberMixin.Filter(&result, p.context, tmm.QueryFilterProject(p.project)); err != nil {
 		response.New(http.StatusInternalServerError).Write(w, r)
 		return
 	}
 
-	/*
-		Iterate over team members, load user info and add
-	*/
-
-	resultsize := len(memberlist)
-	var result = make([]*ProjectMemberListItem, resultsize)
-
-	for i, item := range memberlist {
-		member := &ProjectMemberListItem{
-			ID:     item.ID,
-			Type:   item.Type,
-			UserID: item.UserID,
-			User:   &auth.UserDetailSerializer{},
-		}
-		result[i] = member
-
-		user := models.NewUser()
-		if err := user.Manager(p.context).GetByID(user, item.UserID); err != nil {
-			continue
-		}
-		result[i].User.FromUser(user)
-	}
-
-	response.New(http.StatusOK).Result(result).ResultSize(resultsize).Write(w, r)
+	response.New(http.StatusOK).Result(result).ResultSize(len(result)).Write(w, r)
 	return
 }
 
@@ -95,11 +76,11 @@ func (p *ProjectMemeberListAPIView) GET(w http.ResponseWriter, r *http.Request) 
 */
 func (p *ProjectMemeberListAPIView) OPTIONS(w http.ResponseWriter, r *http.Request) {
 	md := metadata.New("List of project members")
-	md.ActionRetrieve().From(&ProjectMemberListItem{})
+	md.ActionRetrieve().From(&serializers.TeamsTeamMemberDetailSerializer{})
 
 	// admin has permissions to add new member
 	if p.memtype == models.MEMBER_TYPE_ADMIN {
-		create := md.ActionCreate().From(&ProjectMemberCreate{})
+		create := md.ActionCreate().From(&serializers.TeamsTeamMemberCreateSerializer{})
 		create.Field("type").Choices.Add(models.MEMBER_TYPE_MEMBER, "member").Add(models.MEMBER_TYPE_ADMIN, "admin")
 	}
 
@@ -112,33 +93,37 @@ Add member to team
 */
 func (p *ProjectMemeberListAPIView) POST(w http.ResponseWriter, r *http.Request) {
 
+	var err error
+
 	// only admin (and superuser) can add new members
 	if p.memtype != models.MEMBER_TYPE_ADMIN {
 		response.New(http.StatusForbidden).Write(w, r)
 		return
 	}
 
-	serializer := &ProjectMemberCreate{}
-	if err := p.context.Bind(serializer); err != nil {
+	serializer := &serializers.TeamsTeamMemberCreateSerializer{}
+	if err = p.context.Bind(serializer); err != nil {
 		response.New(http.StatusBadRequest).Write(w, r)
 		return
 	}
 
-	if vr := serializer.Validate(p.context, p.project.TeamID); !vr.IsValid() {
+	team := models.NewTeam()
+	if err = p.project.Team(team, p.context); err != nil {
+		response.New(http.StatusNotFound).Error(err).Write(w, r)
+		return
+	}
+
+	if vr := serializer.Validate(p.context, team); !vr.IsValid() {
 		response.New(http.StatusBadRequest).Error(vr).Write(w, r)
 		return
 	}
 
-	tm := models.NewTeamMember(func(tm *models.TeamMember) {
-		tm.TeamID = p.project.TeamID
-		tm.UserID = serializer.UserID
-		tm.Type = serializer.Type
-	})
+	var result *models.TeamMember
 
-	if err := tm.Insert(p.context); err != nil {
+	if result, err = serializer.Save(p.context, team); err != nil {
 		response.New(http.StatusInternalServerError).Error(err).Write(w, r)
 		return
 	}
 
-	response.New(http.StatusCreated).Write(w, r)
+	response.New(http.StatusCreated).Result(result).Write(w, r)
 }

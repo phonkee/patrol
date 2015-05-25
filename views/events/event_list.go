@@ -23,7 +23,7 @@ type EventListView struct {
 }
 
 func (p *EventListView) Before(w http.ResponseWriter, r *http.Request) (err error) {
-	p.context = p.Context(r)
+	p.context = p.GetContext(r)
 	if err = p.GetInstances(w, r); err != nil {
 		return
 	}

@@ -7,7 +7,9 @@ import (
 	"github.com/phonkee/patrol/context"
 	"github.com/phonkee/patrol/core"
 	"github.com/phonkee/patrol/models"
+	"github.com/phonkee/patrol/rest"
 	"github.com/phonkee/patrol/rest/response"
+	"github.com/phonkee/patrol/serializers"
 	"github.com/phonkee/patrol/types"
 	"github.com/phonkee/patrol/views/mixins"
 )
@@ -39,11 +41,11 @@ type UserDetailAPIView struct {
 		3. edited user belongs to team that logged user is admin
 */
 func (u *UserDetailAPIView) Before(w http.ResponseWriter, r *http.Request) (err error) {
-	u.context = u.Context(r)
+	u.context = u.GetContext(r)
 
-	var id *types.ForeignKey
+	var id types.PrimaryKey
 
-	if id, err = u.GetMuxVarForeignKey(r, "user_id"); err != nil {
+	if id, err = rest.GetMuxVarPrimaryKey(r, "user_id"); err != nil {
 		return
 	}
 
@@ -74,64 +76,35 @@ func (u *UserDetailAPIView) Before(w http.ResponseWriter, r *http.Request) (err 
 	GET (retrieve) method
 */
 func (u *UserDetailAPIView) GET(rw http.ResponseWriter, r *http.Request) {
-	serializer := &UserDetailSerializer{
-		ID:          u.user.ID,
-		Username:    u.user.Username,
-		Email:       u.user.Email,
-		Name:        u.user.Name,
-		IsActive:    u.user.IsActive,
-		IsSuperuser: u.user.IsSuperuser,
-	}
+	serializer := &serializers.AuthUserDetailSerializer{}
+	serializer.From(u.user)
 	response.New().Status(http.StatusOK).Result(serializer).Write(rw, r)
 }
 
 /*
 	POST (update) request
 */
-func (u *UserDetailAPIView) POST(rw http.ResponseWriter, r *http.Request) {
-	serializer := &UserUpdateSerializer{}
+func (u *UserDetailAPIView) POST(w http.ResponseWriter, r *http.Request) {
+	var err error
+	serializer := &serializers.AuthUserUpdateSerializer{}
 
-	if err := u.context.Bind(serializer); err != nil {
-		response.New(http.StatusBadRequest).Write(rw, r)
+	if err = u.context.Bind(serializer); err != nil {
+		response.New(http.StatusBadRequest).Write(w, r)
 		return
 	}
 
 	// validate struct
 	if vr := serializer.Validate(u.context); !vr.IsValid() {
-		response.New(http.StatusBadRequest).Error(vr).Write(rw, r)
+		response.New(http.StatusBadRequest).Error(vr).Write(w, r)
 		return
 	}
 
-	var err error
+	var result *serializers.AuthUserDetailSerializer
 
-	u.user.Email = serializer.Email
-	u.user.Name = serializer.Name
-
-	// fields to update
-	fields := []string{"email", "name"}
-
-	if u.authuser.IsSuperuser {
-		u.user.IsActive = serializer.IsActive
-		u.user.IsSuperuser = serializer.IsSuperuser
-		fields = append(fields, "is_active")
-		fields = append(fields, "is_superuser")
-	}
-
-	// update user
-	if _, err = u.user.Update(u.context, fields...); err != nil {
-		response.New(http.StatusInternalServerError).Error(err).Write(rw, r)
+	if result, err = serializer.Save(u.context, u.user, u.authuser); err != nil {
+		response.New(http.StatusInternalServerError).Error(err).Write(w, r)
 		return
 	}
 
-	seruser := &UserDetailSerializer{
-		ID:          u.user.ID,
-		Username:    u.user.Username,
-		Email:       u.user.Email,
-		Name:        u.user.Name,
-		IsActive:    u.user.IsActive,
-		IsSuperuser: u.user.IsSuperuser,
-	}
-
-	response.New(http.StatusOK).Result(seruser).Write(rw, r)
-	return
+	response.New(http.StatusOK).Result(result).Write(w, r)
 }

@@ -31,7 +31,7 @@ type ProjectDetailAPIView struct {
 Before function checks member type for auth user/project
 */
 func (p *ProjectDetailAPIView) Before(w http.ResponseWriter, r *http.Request) (err error) {
-	p.context = p.Context(r)
+	p.context = p.GetContext(r)
 	if _, err = p.MemberType(p.context, r); err != nil {
 		response.New().Status(http.StatusUnauthorized).Write(w, r)
 		return err

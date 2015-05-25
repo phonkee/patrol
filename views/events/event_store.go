@@ -31,7 +31,7 @@ func (s *EventStoreAPIView) GetProjectID(r *http.Request) (id int64, err error) 
 }
 
 func (s *EventStoreAPIView) Before(w http.ResponseWriter, r *http.Request) (err error) {
-	s.context = s.Context(r)
+	s.context = s.GetContext(r)
 	var pid int64
 	if pid, err = s.GetProjectID(r); err != nil {
 		return

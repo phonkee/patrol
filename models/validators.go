@@ -43,6 +43,16 @@ func ValidateTeamID(context *context.Context) validator.ValidatorFunc {
 }
 
 /*
+Validate team name
+*/
+func ValidateTeamName() validator.ValidatorFunc {
+	return validator.Any(
+		validator.ValidateStringMinLength(5),
+		validator.ValidateStringMaxLength(200),
+	)
+}
+
+/*
 Validate user id
 */
 func ValidateUserID(context *context.Context) validator.ValidatorFunc {

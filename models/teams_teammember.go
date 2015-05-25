@@ -67,6 +67,12 @@ func (t *TeamMember) Manager(ctx *context.Context) *TeamMemberManager {
 	return NewTeamMemberManager(ctx)
 }
 
+func (t *TeamMember) User(target interface{}, ctx *context.Context) (err error) {
+	manager := NewUserManager(ctx)
+	err = manager.GetByID(target, t.UserID)
+	return
+}
+
 /*
 TeamMember manager
 */
@@ -132,25 +138,37 @@ func (t *TeamMemberManager) Get(target interface{}, qfs ...utils.QueryFunc) (err
 	return DBGet(t.context, TEAMS_TEAMMEMBER_DB_TABLE+".*", TEAMS_TEAMMEMBER_DB_TABLE, !safe, target, qfs...)
 }
 
-/*
-Adds member to team
-*/
-func (t *TeamMemberManager) SetTeamMemberType(team *Team, user *User, mt MemberType) (err error) {
-	handleNilPointer(team)
-	handleNilPointer(user)
+func (t *TeamMemberManager) GetByID(target interface{}, id types.Keyer) (err error) {
+	if id.Int64() == 0 {
+		return ErrObjectDoesNotExists
+	}
 
-	tm := t.NewTeamMember()
-
-	if err = t.Get(tm, t.QueryFilterTeamUser(team, user)); err != nil {
-		tm.TeamID = types.ForeignKey(team.ID)
-		tm.UserID = types.ForeignKey(user.ID)
-		tm.Type = mt
-		err = tm.Insert(t.context)
+	if err = t.Get(target, t.QueryFilterID(id)); err != nil {
 		return
 	}
 
-	tm.Type = mt
-	_, err = tm.Update(t.context, "type")
+	return
+}
+
+/*
+Adds member to team
+*/
+func (t *TeamMemberManager) SetTeamMemberType(team *Team, user *User, mt MemberType) (result *TeamMember, err error) {
+	handleNilPointer(team)
+	handleNilPointer(user)
+
+	result = t.NewTeamMember()
+
+	if err = t.Get(result, t.QueryFilterTeamUser(team, user)); err != nil {
+		result.TeamID = types.ForeignKey(team.ID)
+		result.UserID = types.ForeignKey(user.ID)
+		result.Type = mt
+		err = result.Insert(t.context)
+		return
+	}
+
+	result.Type = mt
+	_, err = result.Update(t.context, "type")
 
 	return
 }
@@ -216,7 +234,7 @@ func (t *TeamMemberManager) MemberTypeByProject(project *Project, user *User) (m
 
 	tm := NewTeamManager(t.context)
 	team := tm.NewTeam()
-	if err = project.Team(team, tm); err != nil {
+	if err = project.Team(team, tm.context); err != nil {
 		return
 	}
 
