@@ -8,6 +8,7 @@ import (
 	"github.com/phonkee/patrol/models"
 	"github.com/phonkee/patrol/rest"
 	"github.com/phonkee/patrol/rest/response"
+	"github.com/phonkee/patrol/rest/views"
 	"github.com/phonkee/patrol/types"
 )
 
@@ -20,54 +21,44 @@ var (
 EventGroupDetailMixin is mixin for event group details. Fetches data from db and
 store them
 */
-type EvenGroupDetailMixin struct {
-	EventGroup *models.EventGroup
-	Project    *models.Project
+type EventGroupMixin struct {
 }
 
 /*
-Loads objects from request
+Loads eventgroup from storage
 */
-func (e *EvenGroupDetailMixin) GetInstances(w http.ResponseWriter, r *http.Request) (err error) {
-
+func (e *EventGroupMixin) GetEventGroup(target interface{}, w http.ResponseWriter, r *http.Request, muxvar ...string) (err error) {
+	var ctx *context.Context
 	// get context
-	ctx, _ := context.Get(r)
+	if ctx, err = context.Get(r); err != nil {
+		response.New(http.StatusInternalServerError).Error(err).Write(w, r)
+		return views.ErrInternalServerError
+	}
 
-	egm := models.NewEventGroupManager(ctx)
-	pm := models.NewProjectManager(ctx)
-
-	// read project id
-	var projectid types.PrimaryKey
-	if projectid, err = rest.GetMuxVarPrimaryKey(r, "project_id"); err != nil {
-		response.New(http.StatusBadRequest).Error(ErrInvalidParam).Write(w, r)
-		return ErrInvalidParam
+	varname := "eventgroup_id"
+	if len(muxvar) > 0 {
+		varname = muxvar[0]
 	}
 
 	// read eventgroup id from mux vars
-	var eventgroupid types.PrimaryKey
-	if eventgroupid, err = rest.GetMuxVarPrimaryKey(r, "eventgroup_id"); err != nil {
-		response.New(http.StatusBadRequest).Error(ErrInvalidParam).Write(w, r)
-		return ErrInvalidParam
+	var pk types.PrimaryKey
+
+	if pk, err = rest.GetMuxVarPrimaryKey(r, varname); err != nil {
+		err = views.ErrInvalidParam
+		response.New(http.StatusBadRequest).Error(err).Write(w, r)
+		return
 	}
 
-	// get project from database
-	e.Project = models.NewProject()
-	if err = pm.GetByID(e.Project, projectid); err != nil {
-		response.New(http.StatusNotFound).Write(w, r)
-		return ErrNotFound
-	}
+	manager := models.NewEventGroupManager(ctx)
 
-	// get eventgroup from database
-	e.EventGroup = models.NewEventGroup()
-	if err = egm.GetByID(e.EventGroup, eventgroupid); err != nil {
-		response.New(http.StatusNotFound).Write(w, r)
-		return ErrNotFound
-	}
-
-	// check if eventgroup belongs to project
-	if e.EventGroup.ProjectID.ToPrimaryKey() != e.Project.ID {
-		response.New(http.StatusNotFound).Write(w, r)
-		return ErrNotFound
+	if err = manager.GetByID(target, pk); err != nil {
+		switch err {
+		case models.ErrObjectDoesNotExists:
+			response.New(http.StatusNotFound).Write(w, r)
+		default:
+			response.New(http.StatusInternalServerError).Error(err).Write(w, r)
+		}
+		return
 	}
 
 	return

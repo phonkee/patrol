@@ -22,7 +22,11 @@ type EventGroupResolveAPIView struct {
 	// returns member type
 	mixins.AuthUserMixin
 	mixins.ProjectMemberTypeMixin
-	mixins.EvenGroupDetailMixin
+	mixins.ProjectsProjectMixin
+	mixins.EventGroupMixin
+
+	eventgroup *models.EventGroup
+	project    *models.Project
 }
 
 /*
@@ -36,8 +40,18 @@ func (p *EventGroupResolveAPIView) Before(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	if err = p.GetInstances(w, r); err != nil {
+	if err = p.GetProject(p.project, w, r); err != nil {
 		return
+	}
+
+	if err = p.GetEventGroup(p.eventgroup, w, r); err != nil {
+		return
+	}
+
+	// check
+	if p.eventgroup.ProjectID.ToPrimaryKey() != p.project.ID {
+		response.New(http.StatusNotFound).Write(w, r)
+		return views.ErrNotFound
 	}
 
 	// check membership in project
@@ -54,7 +68,7 @@ func (p *EventGroupResolveAPIView) Before(w http.ResponseWriter, r *http.Request
 */
 func (p *EventGroupResolveAPIView) POST(w http.ResponseWriter, r *http.Request) {
 	egm := models.NewEventGroupManager(p.context)
-	if err := egm.Resolve(p.EventGroup, p.user); err != nil {
+	if err := egm.Resolve(p.eventgroup, p.user); err != nil {
 		response.New(http.StatusNotAcceptable).Write(w, r)
 		return
 	}

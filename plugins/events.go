@@ -94,10 +94,10 @@ func (e *EventsPlugin) URLs() []*views.URL {
 				return &events.EventGroupResolveAPIView{}
 			},
 		).Name(settings.ROUTE_EVENTS_EVENTGROUP_RESOLVE).Middlewares(mids...),
-		views.NewURL("/api/projects/project/{project_id:[0-9]+}/eventgroup/{eventgroup_id:[0-9]+}/event/",
-			func() views.Viewer {
-				return &events.EventListView{}
-			},
+
+		views.NewURL(
+			"/api/projects/project/{project_id:[0-9]+}/eventgroup/{eventgroup_id:[0-9]+}/event/",
+			events.NewEventListView,
 		).Name(settings.ROUTE_EVENTS_EVENT_LIST).Middlewares(mids...),
 	}
 
