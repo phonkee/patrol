@@ -13,10 +13,10 @@ It uses sentry protocol so you can use raven clients (currently protocol version
 Frontend is written in angularjs.
 
 For demo you can try:
-	http://demo.patrol.name
+    http://demo.patrol.name
 
-	username: demo
-	password: demo
+    username: demo
+    password: demo
 
 It's still very limited, under heavy development.
 
