@@ -66,8 +66,8 @@ type Response struct {
 	Result_      interface{} `json:"result,omitempty"`
 	ResultSize_  *int        `json:"result_size,omitempty"`
 
-	Paging_   *paginator.Paginator `json:"paging,omitempty"`
-	Ordering_ *ordering.Ordering   `json:"ordering,omitempty"`
+	Paginator_ *paginator.Paginator `json:"paginator,omitempty"`
+	Ordering_  *ordering.Ordering   `json:"ordering,omitempty"`
 
 	Error_   interface{}       `json:"error,omitempty"`
 	Headers_ map[string]string `json:"-"`
@@ -118,8 +118,8 @@ func (r *Response) Ordering(ordering *ordering.Ordering) *Response {
 	return r
 }
 
-func (r *Response) Paging(paging *paginator.Paginator) *Response {
-	r.Paging_ = paging
+func (r *Response) Paginator(paginator *paginator.Paginator) *Response {
+	r.Paginator_ = paginator
 	return r
 }
 

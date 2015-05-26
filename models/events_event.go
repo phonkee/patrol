@@ -19,7 +19,7 @@ var (
 	(
 		id bigserial NOT NULL PRIMARY KEY,
 		event_id character varying (32),
-		event_group_id bigint REFERENCES ` + EVENTS_EVENTGROUP_DB_TABLE + `,
+		eventgroup_id bigint REFERENCES ` + EVENTS_EVENTGROUP_DB_TABLE + `,
 		project_id bigint REFERENCES ` + PROJECTS_PROJECT_DB_TABLE + `,
 		message character varying (1000) NOT NULL,
 		platform character varying (64) NOT NULL,
@@ -35,11 +35,11 @@ Event model
 type Event struct {
 	Model
 	EventID      string           `db:"event_id" json:"event_id"`
-	EventGroupID types.ForeignKey `db:"event_group_id" json:"event_group_id"`
+	EventGroupID types.ForeignKey `db:"eventgroup_id" json:"eventgroup_id"`
 	ProjectID    types.ForeignKey `db:"project_id" json:"project_id"`
 	Message      string           `db:"message" json:"message"`
 	Platform     string           `db:"platform" json:"platform"`
-	Datetime     time.Time        `db:"date_time" json:"datetime"`
+	Datetime     time.Time        `db:"datetime" json:"datetime"`
 	TimeSpent    int64            `db:"time_spent" json:"time_spent"`
 	Data         types.GzippedMap `db:"data" json:"data"`
 }
@@ -47,7 +47,7 @@ type Event struct {
 // returns all columns except of primary key
 func (e *Event) Columns() []string {
 	return []string{
-		"event_id", "event_group_id", "project_id", "message",
+		"event_id", "eventgroup_id", "project_id", "message",
 		"platform", "datetime", "time_spent", "data",
 	}
 }
@@ -112,12 +112,19 @@ func NewEvent(funcs ...func(*Event)) (event *Event) {
 }
 
 /*
+Returns empty event list
+*/
+func NewEventList() (result []*Event) {
+	return []*Event{}
+}
+
+/*
 	New... methods to create blank model instances
 */
 func (e *EventManager) NewEvent(funcs ...func(*Event)) (event *Event) {
 	return NewEvent(funcs...)
 }
-func (e *EventManager) NewEventList() []*Event { return []*Event{} }
+func (e *EventManager) NewEventList() []*Event { return NewEventList() }
 
 // Filter results without paging
 func (e *EventManager) Filter(target interface{}, qfs ...utils.QueryFunc) error {

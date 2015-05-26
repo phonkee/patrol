@@ -79,7 +79,7 @@ func (u *UserListAPIView) GET(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response.New(http.StatusOK).Result(list).Paging(paginator).Write(w, r)
+	response.New(http.StatusOK).Result(list).Paginator(paginator).Write(w, r)
 }
 
 /*

@@ -21,8 +21,7 @@ var (
 EventGroupDetailMixin is mixin for event group details. Fetches data from db and
 store them
 */
-type EventGroupMixin struct {
-}
+type EventGroupMixin struct{}
 
 /*
 Loads eventgroup from storage

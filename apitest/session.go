@@ -33,6 +33,7 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"strings"
 
 	"github.com/phonkee/patrol"
@@ -113,15 +114,15 @@ func (r *Session) User() *models.User {
 	Returns SessionRequest
 */
 func (r *Session) Request(method, routename string, args ...string) *SessionRequest {
-	url, _ := r.context.Router.Get(routename).URL(args...)
+	requesturl, _ := r.context.Router.Get(routename).URL(args...)
 
 	rsr := &SessionRequest{
 		method:  method,
-		path:    url.Path,
+		path:    requesturl.Path,
 		token:   r.token,
 		context: r.context,
+		values:  url.Values{},
 	}
-	rsr.prepareRequest()
 	return rsr
 }
 
@@ -137,10 +138,26 @@ type SessionRequest struct {
 	path     string
 	err      error
 	token    string
+	values   url.Values
 }
 
 func (r *SessionRequest) Error() error {
 	return r.err
+}
+
+func (s *SessionRequest) SetValue(key, value string) *SessionRequest {
+	s.values.Set(key, value)
+	return s
+}
+
+func (s *SessionRequest) AddValue(key, value string) *SessionRequest {
+	s.values.Add(key, value)
+	return s
+}
+
+func (s *SessionRequest) DelValue(key string) *SessionRequest {
+	s.values.Del(key)
+	return s
 }
 
 func (r *SessionRequest) StringBody(body string) *SessionRequest {
@@ -178,7 +195,13 @@ func (r *SessionRequest) Do() *SessionRequest {
 }
 
 func (r *SessionRequest) prepareRequest() {
-	req, _ := http.NewRequest(r.method, r.path, r.body)
+
+	ev := r.values.Encode()
+	if ev != "" {
+		ev = "?" + ev
+	}
+
+	req, _ := http.NewRequest(r.method, r.path+ev, r.body)
 	r.request = req
 	r.request.Header.Set("Authorization", "Bearer "+r.token)
 	r.response = httptest.NewRecorder()

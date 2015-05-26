@@ -48,17 +48,17 @@ Retrieve list of projects
 */
 func (p *ProjectListAPIView) GET(w http.ResponseWriter, r *http.Request) {
 	manager := models.NewProjectManager(p.context)
-	paging := manager.NewPaginatorFromRequest(r)
+	paginator := manager.NewPaginatorFromRequest(r)
 	projects := manager.NewProjectList()
 
-	if err := manager.FilterPaged(&projects, paging); err != nil {
+	if err := manager.FilterPaged(&projects, paginator); err != nil {
 		glog.Error(err)
 		response.New(http.StatusInternalServerError).Write(w, r)
 		return
 	}
 
-	// update paging
-	response.New(http.StatusOK).Result(projects).Paging(paging).Write(w, r)
+	// update paginator
+	response.New(http.StatusOK).Result(projects).Paginator(paginator).Write(w, r)
 }
 
 /*

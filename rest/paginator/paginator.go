@@ -17,18 +17,21 @@ func New(minlimit, maxlimit, def int, params *PaginatorParams) *Paginator {
 		MaxLimit:     maxlimit,
 		DefaultLimit: def,
 		Params:       params,
+		Page:         1,
 	}
 	Paginator.SetLimit(def)
 	return Paginator
 }
 
-// Paginator implementation
+/*
+Paginator implementation
+*/
 type Paginator struct {
 	Limit int `json:"limit"`
 	Page  int `json:"page"`
 	Count int `json:"count"`
 
-	// limits
+	// limits are not exported to json
 	MinLimit     int `json:"-"`
 	MaxLimit     int `json:"-"`
 	DefaultLimit int `json:"-"`
@@ -41,9 +44,6 @@ func (p *Paginator) ReadRequest(r *http.Request) *Paginator {
 	qp := query_params.New(r.URL.Query())
 	p.SetLimit(qp.GetInt(p.Params.LimitParam, -1))
 	p.SetPage(qp.GetInt(p.Params.PageParam, -1))
-
-	// p.SetLimit(p.Params.GetLimit(r.URL.Query()))
-	// p.SetPage(p.Params.GetPage(r.URL.Query()))
 	return p
 }
 
@@ -57,8 +57,8 @@ func (p *Paginator) SetLimit(limit int) *Paginator {
 }
 
 func (p *Paginator) SetPage(page int) *Paginator {
-	if page < 0 {
-		p.Page = 0
+	if page < 1 {
+		p.Page = 1
 	} else {
 		p.Page = page
 	}
@@ -71,7 +71,7 @@ func (p *Paginator) SetCount(count int) *Paginator {
 }
 
 func (p *Paginator) Offset() int {
-	return p.Limit * p.Page
+	return p.Limit * (p.Page - 1)
 }
 
 // returns limit/offset clause sql query
