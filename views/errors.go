@@ -1,3 +1,6 @@
+/*
+@TODO: move all references to rest/views
+*/
 package views
 
 import "errors"
