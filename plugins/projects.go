@@ -52,17 +52,6 @@ func (p *ProjectsPlugin) URLs() []*views.URL {
 			},
 		).Name(settings.ROUTE_PROJECTS_PROJECTKEY_DETAIL).Middlewares(mids...),
 
-		views.NewURL("/api/projects/project/{project_id:[0-9]+}/member/",
-			func() views.Viewer {
-				return &projects.ProjectMemeberListAPIView{}
-			},
-		).Name(settings.ROUTE_PROJECTS_PROJECTMEMBER_LIST).Middlewares(mids...),
-
-		views.NewURL("/api/projects/project/{project_id:[0-9]+}/member/{member_id:[0-9]+}",
-			func() views.Viewer {
-				return &projects.ProjectMemeberDetailAPIView{}
-			},
-		).Name(settings.ROUTE_PROJECTS_PROJECTMEMBER_DETAIL).Middlewares(mids...),
 	}
 }
 func (p *ProjectsPlugin) Migrations() []core.Migrationer {
