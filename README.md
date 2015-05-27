@@ -1,8 +1,3 @@
----
-layout: index
----
-
-
 # patrol
 
 
