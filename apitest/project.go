@@ -6,6 +6,11 @@ import (
 	"github.com/phonkee/patrol/utils"
 )
 
+/*
+Creates new project
+
+First it creates team with user as owner, and then creates project with given team.
+*/
 func CreateProject(ctx *context.Context, user *models.User) (project *models.Project, err error) {
 
 	var team *models.Team
