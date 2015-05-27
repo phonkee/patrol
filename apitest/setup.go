@@ -19,6 +19,7 @@ Sets up test environment
 func Setup() {
 	settings.SETTINGS_SECRET_KEY = os.Getenv("SECRET_KEY")
 
+	// run just once
 	once.Do(func() {
 		if err := patrol.Setup(); err != nil && err != patrol.ErrPatrolAlreadySetup {
 			glog.Errorf("patrol: setup error: %v", err)
